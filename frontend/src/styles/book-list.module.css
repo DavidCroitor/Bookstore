@@ -1,0 +1,21 @@
+.booksContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin: 25px 10px;
+}
+
+.bookCard {
+    border: 1px solid black;
+    border-radius: 8px;
+    padding: 16px;
+    width: 200px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    background-color: #F1F0E9;
+    transition: transform 0.2 ease;
+}
+
+.bookCard:hover {
+    transform: scale(1.05);
+    cursor: pointer;
+}

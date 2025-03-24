@@ -1,0 +1,65 @@
+.inputGroup {
+    
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 10px;
+    flex-grow:0.5;
+}
+
+.input {
+    padding: 10px;
+    border: 1px solid black;
+    border-radius: 5px;
+    box-sizing:border-box;
+}
+
+.addButton {
+    padding: 20px;
+    flex-grow: 0.5;
+    margin: 20px;
+    border-radius: 5px;
+    background-color: #00f300;
+    border: none;
+    cursor: pointer;
+}
+.addButton:hover {
+    background-color: #06b500;
+}
+
+.cancelButton {
+    padding: 20px;
+    margin: 20px;
+    flex-grow: 0.5;
+    border-radius: 5px;
+    background-color: #1000f3;
+    border: none;
+    cursor: pointer;
+}
+.cancelButton:hover {
+    background-color: #0021b5;
+}
+
+.deleteButton {
+    margin: 20px;
+    padding: 20px;
+    flex-grow: 0.5;
+    border-radius: 5px;
+    background-color: #f30000;
+    border: none;
+    cursor: pointer;
+}
+.deleteButton:hover {
+    background-color: #b57600;
+}
+
+
+.container {
+    max-width: 700px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+}

@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useDebugValue, useState } from 'react';
 import styles from '../styles/book-form.module.css';
 
 export default function BookForm({ onAddBook }) {
     const [form, setForm] = useState({ title: '', author: '', genre: '', price:''});
-    const [error, setError] = useState('');
+    const [error, setError] = useState({});
+
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -52,7 +53,7 @@ export default function BookForm({ onAddBook }) {
         e.preventDefault();
 
         if (validateForm()) {
-                onAddBook(form);  // Handle adding book
+            onAddBook(form);  // Handle adding book
             
         }
     };

@@ -19,3 +19,18 @@
     transform: scale(1.05);
     cursor: pointer;
 }
+
+.mostExpensive {
+    background-color: #ffe0b2; /* Light orange */
+    border: 2px solid #ff9800; /* Orange border */
+}
+
+.leastExpensive {
+    background-color: #c8e6c9; /* Light green */
+    border: 2px solid #4caf50; /* Green border */
+}
+
+.closestToAverage {
+    background-color: #bbdefb; /* Light blue */
+    border: 2px solid #2196f3; /* Blue border */
+}

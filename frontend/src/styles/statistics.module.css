@@ -1,0 +1,84 @@
+/* Centering the Table */
+.pageContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Full height of the viewport */
+    width: 100%;
+    padding: 16px;
+}
+
+/* Legend Styles */
+.legend {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.legendItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+    color: black;
+}
+
+.mostExpensiveItem {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    background-color: #ffe082
+}
+
+.averageItem {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    background-color: #90caf9;
+}
+
+.leastExpensiveItem {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    background-color: #a5d6a7;
+}
+
+/* Table Container */
+.tableContainer {
+    max-width: 600px; /* Optional: Limit the width */
+    width: 75%; /* Make it responsive */
+    padding: 16px; /* Add a white background */
+}
+
+/* Table Styling */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #000000;
+    border-radius: 8px;
+    background-color: #ddd;
+    overflow: hidden; /* Ensures rounded corners are applied */
+}
+
+
+.th, .td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+/* Conditional coloring for table rows */
+.mostExpensive {
+    background-color: #ffe082; 
+}
+
+.leastExpensive {
+    background-color: #a5d6a7; 
+}
+
+.closestToAverage {
+    background-color: #90caf9; 
+}

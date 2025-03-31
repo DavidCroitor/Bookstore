@@ -1,1 +1,24 @@
 /.vs
+
+# --- Backend-specific rules ---
+backend/node_modules/
+backend/.vs/
+backend/.vs/**
+backend/src/__tests__/coverage/
+backend/books.json
+backend/config/
+backend/config/applicationhost.config
+backend/FileContentIndex/
+backend/v17/
+backend/*.log
+
+# --- Frontend-specific rules ---
+frontend/node_modules/
+frontend/.next/
+frontend/.swc/
+frontend/build/
+frontend/coverage/
+frontend/.env*
+frontend/.DS_Store
+frontend/.pem
+frontend/.debug

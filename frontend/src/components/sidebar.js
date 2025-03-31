@@ -5,6 +5,7 @@ import HomeIcon from '../../assets/home.png';
 import HeartIcon from '../../assets/heart.png';
 import FilterIcon from '../../assets/filter.png';
 import SettignsIcon from '../../assets/settings.png';
+import StatsIcon from '../../assets/stats.png'
 import SignOutIcon from '../../assets/signout.png';
 import Link from 'next/link';
 
@@ -63,6 +64,16 @@ const Sidebar = () => {
                         />
                     </div>    
                 </a></li>
+                <li><Link href="../statistics">
+                    <div className={styles.menuItemBox}>
+                        <Image
+                            src={StatsIcon}
+                            width={25}
+                            height={25}
+                            alt="StatsIcon"
+                        />
+                    </div>    
+                </Link></li>
                 <li><a href="#">
                     <div className={styles.menuItemBox}>
                         <Image

@@ -1,0 +1,135 @@
+[
+    {
+        "id": 1,
+        "title": "1984",
+        "author": "George Orwell",
+        "genre": "Dystopian",
+        "price": 9.99
+    },
+    {
+        "id": 2,
+        "title": "To Kill a Mockingbird",
+        "author": "Harper Lee",
+        "genre": "Classic",
+        "price": 15.99
+    },
+    {
+        "id": 3,
+        "title": "Mere Christianity",
+        "author": "C.S. Lewis",
+        "genre": "Apologetics",
+        "price": 12.99
+    },
+    {
+        "id": 4,
+        "title": "The Picture of Dorian Gray",
+        "author": "Oscar Wilde",
+        "genre": "Fiction",
+        "price": 19.99
+    },
+    {
+        "id": 5,
+        "title": "Brave New World",
+        "author": "Aldous Huxley",
+        "genre": "Dystopian",
+        "price": 10.99
+    },
+    {
+        "id": 6,
+        "title": "The Great Gatsby",
+        "author": "F. Scott Fitzgerald",
+        "genre": "Classic",
+        "price": 14.99
+    },
+    {
+        "id": 7,
+        "title": "The Hobbit",
+        "author": "J.R.R. Tolkien",
+        "genre": "Fantasy",
+        "price": 13.99
+    },
+    {
+        "id": 8,
+        "title": "Thinking, Fast and Slow",
+        "author": "Daniel Kahneman",
+        "genre": "Psychology",
+        "price": 16.99
+    },
+    {
+        "id": 9,
+        "title": "Pride and Prejudice",
+        "author": "Jane Austen",
+        "genre": "Romance",
+        "price": 11.99
+    },
+    {
+        "id": 10,
+        "title": "The Catcher in the Rye",
+        "author": "J.D. Salinger",
+        "genre": "Fiction",
+        "price": 8.99
+    },
+    {
+        "id": 11,
+        "title": "Sapiens: A Brief History of Humankind",
+        "author": "Yuval Noah Harari",
+        "genre": "History",
+        "price": 18.99
+    },
+    {
+        "id": 12,
+        "title": "The Road",
+        "author": "Cormac McCarthy",
+        "genre": "Post-Apocalyptic",
+        "price": 12.49
+    },
+    {
+        "id": 13,
+        "title": "Meditations",
+        "author": "Marcus Aurelius",
+        "genre": "Philosophy",
+        "price": 10.49
+    },
+    {
+        "id": 14,
+        "title": "The Alchemist",
+        "author": "Paulo Coelho",
+        "genre": "Fiction",
+        "price": 9.49
+    },
+    {
+        "id": 15,
+        "title": "Dune",
+        "author": "Frank Herbert",
+        "genre": "Science Fiction",
+        "price": 17.99
+    },
+    {
+        "id": 16,
+        "title": "Educated",
+        "author": "Tara Westover",
+        "genre": "Memoir",
+        "price": 13.49
+    },
+    {
+        "id": 17,
+        "title": "The Divine Comedy",
+        "author": "Dante Alighieri",
+        "genre": "Epic Poetry",
+        "price": 20.99
+    },
+    {
+        "id": 18,
+        "title": "Crime and Punishment",
+        "author": "Fyodor Dostoevsky",
+        "genre": "Classic",
+        "price": 15.49
+    },
+    {
+        "id": 19,
+        "title": "Animal Farm",
+        "author": "George Orwell",
+        "genre": "Satire",
+        "price": 7.99
+    }
+]

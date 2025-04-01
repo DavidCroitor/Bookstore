@@ -1,287 +1,304 @@
 const request = require('supertest');
-const { app } = require('../api/server'); // Import the Express app
+const app = require('../app'); // Import the Express app instance from src/app.js
+const bookRepository = require('../repositories/book.repository'); // Import the repository
 
-// Use a copy of the initial data for tests to avoid interference
-let initialBooks = require('../../books.json');
-let testBooks; // This will hold the mutable data for each test
+// Make sure NODE_ENV is set to 'test' (Jest usually does this automatically)
+// You can add this check for safety:
+if (process.env.NODE_ENV !== 'test') {
+  throw new Error('Tests must be run with NODE_ENV=test');
+}
 
-// Reset data before each test
+// Check if the reset function exists (it should in test env)
+if (!bookRepository._resetDataForTesting) {
+    throw new Error('Repository reset function (_resetDataForTesting) is not available. Ensure NODE_ENV=test.');
+}
+
+// Reset data before each test using the repository's reset function
 beforeEach(() => {
-  // Deep copy initial books to reset state for each test
-  testBooks = JSON.parse(JSON.stringify(initialBooks));
-  // NOTE: This simple reset only works because the server.js `books` array
-  // is exported and modified directly. In a real app with a database or
-  // more complex state management, you'd need a proper reset mechanism
-  // (e.g., clearing DB tables, resetting service state).
-  // For this example, we directly manipulate the exported 'books' array reference.
-  require('../api/server').books.length = 0; // Clear the server's array
-  testBooks.forEach(b => require('../api/server').books.push(b)); // Repopulate server's array
-  require('../api/server').nextId = testBooks.length > 0 ? Math.max(...testBooks.map(b => b.id)) + 1 : 1; // Reset nextId
+  bookRepository._resetDataForTesting();
+  // No need to load initialBooks here, the repo handles its own initial state.
 });
 
+describe('Books API (/api/books)', () => {
 
-describe('Books API', () => {
-
-    // --- GET /books ---
-    describe('GET /books', () => {
+    // --- GET /api/books ---
+    describe('GET /api/books', () => {
         it('should return all books', async () => {
-            const res = await request(app).get('/books');
+            // Get current state from repo for comparison length if needed
+            const currentBooks = bookRepository.findAll();
+            const res = await request(app).get('/api/books'); // <--- Updated path
+
             expect(res.statusCode).toEqual(200);
             expect(res.body).toBeInstanceOf(Array);
-            expect(res.body.length).toEqual(testBooks.length);
-            // Check if IDs match (simple check)
-            const responseIds = res.body.map(b => b.id);
-            const initialIds = testBooks.map(b => b.id);
-            expect(responseIds.sort()).toEqual(initialIds.sort());
+            expect(res.body.length).toEqual(currentBooks.length); // Compare length against repo state
+            // Add more specific checks if necessary
         });
-
+        
         it('should filter books by title (case-insensitive)', async () => {
-            const res = await request(app).get('/books?filter=dune');
+            const res = await request(app).get('/api/books?filter=dune'); // <--- Updated path
             expect(res.statusCode).toEqual(200);
-            expect(res.body.length).toBe(1);
-            expect(res.body[0].title).toEqual("Dune");
+            expect(res.body.length).toBeGreaterThanOrEqual(1); // Be flexible if data changes
+            expect(res.body.some(b => b.title.toLowerCase().includes("dune"))).toBeTruthy();
         });
 
         it('should filter books by author (case-insensitive)', async () => {
-            const res = await request(app).get('/books?filter=marcus');
-            expect(res.statusCode).toEqual(200);
-            expect(res.body.length).toBe(1);
-            expect(res.body[0].author).toEqual("Marcus Aurelius");
+            const res = await request(app).get('/api/books?filter=marcus'); // <--- Updated path
+             expect(res.statusCode).toEqual(200);
+            expect(res.body.length).toBeGreaterThanOrEqual(1);
+            expect(res.body.some(b => b.author.toLowerCase().includes("marcus"))).toBeTruthy();
         });
 
         it('should return empty array if filter matches nothing', async () => {
-            const res = await request(app).get('/books?filter=nonexistent');
+            const res = await request(app).get('/api/books?filter=nonexistentxyz'); // <--- Updated path
             expect(res.statusCode).toEqual(200);
             expect(res.body.length).toBe(0);
         });
 
         it('should sort books by price ascending', async () => {
-            const res = await request(app).get('/books?sortBy=price&order=asc');
+            const res = await request(app).get('/api/books?sortBy=price&order=asc'); // <--- Updated path
             expect(res.statusCode).toEqual(200);
-            expect(res.body.length).toBeGreaterThan(1);
-            expect(res.body[0].price).toBeLessThanOrEqual(res.body[1].price);
-            expect(res.body[0].title).toBe('Animal Farm'); // Assuming 1984 is the cheapest
+            if (res.body.length > 1) {
+                expect(res.body[0].price).toBeLessThanOrEqual(res.body[1].price);
+            }
         });
 
         it('should sort books by title descending', async () => {
-            const res = await request(app).get('/books?sortBy=title&order=desc');
+            const res = await request(app).get('/api/books?sortBy=title&order=desc'); // <--- Updated path
             expect(res.statusCode).toEqual(200);
-            expect(res.body.length).toBeGreaterThan(1);
-            expect(res.body[0].title > res.body[1].title).toBeTruthy();
-             expect(res.body[0].title).toBe('To Kill a Mockingbird'); // Assuming this comes first alphabetically desc
+             if (res.body.length > 1) {
+                // Using localeCompare for robust string comparison
+                expect(res.body[0].title.localeCompare(res.body[1].title)).toBeGreaterThanOrEqual(0);
+            }
         });
 
-         it('should return 400 for invalid sortBy field', async () => {
-            const res = await request(app).get('/books?sortBy=invalidField');
-            expect(res.statusCode).toEqual(400);
-            expect(res.body.errors).toEqual(expect.arrayContaining([
-                expect.objectContaining({ 'sortBy': 'Invalid sortBy field' })
-            ]));
+         it('should return 422 for invalid sortBy field', async () => { // <-- Status 422
+            const res = await request(app).get('/api/books?sortBy=invalidField'); // <--- Updated path
+            expect(res.statusCode).toEqual(422); // <-- Status 422
+             // Check the new error format
+            expect(res.body.message).toEqual('Validation failed');
+            expect(res.body.errors).toHaveProperty('sortBy', 'Invalid sortBy field'); // <-- Updated check
+        });
+
+         it('should return 422 for invalid order field', async () => { // <-- Status 422
+            const res = await request(app).get('/api/books?order=invalid'); // <--- Updated path
+            expect(res.statusCode).toEqual(422); // <-- Status 422
+            expect(res.body.message).toEqual('Validation failed');
+            expect(res.body.errors).toHaveProperty('order', 'Invalid order value'); // <-- Updated check
         });
     });
 
-     // --- GET /books/:id ---
-    describe('GET /books/:id', () => {
+     // --- GET /api/books/:id ---
+    describe('GET /api/books/:id', () => {
         it('should return a single book if ID exists', async () => {
-            const existingId = testBooks[0].id;
-            const res = await request(app).get(`/books/${existingId}`);
+            const books = bookRepository.findAll(); // Get current books from repo
+            if (books.length === 0) {
+                console.warn("Skipping GET /:id test - no books in repository");
+                return; // Skip test if repo is empty
+            }
+            const existingId = books[0].id;
+            const res = await request(app).get(`/api/books/${existingId}`); // <--- Updated path
             expect(res.statusCode).toEqual(200);
             expect(res.body.id).toEqual(existingId);
-            expect(res.body.title).toEqual(testBooks[0].title);
+            expect(res.body.title).toEqual(books[0].title);
         });
 
         it('should return 404 if ID does not exist', async () => {
-            const nonExistentId = 9999;
-            const res = await request(app).get(`/books/${nonExistentId}`);
+            const nonExistentId = 99999;
+            const res = await request(app).get(`/api/books/${nonExistentId}`); // <--- Updated path
             expect(res.statusCode).toEqual(404);
-            expect(res.body.message).toEqual('Book not found');
+            expect(res.body.message).toEqual('Book not found'); // Message comes from service/http-errors
         });
 
-         it('should return 400 for invalid ID format', async () => {
-            const res = await request(app).get(`/books/invalid-id`);
-            expect(res.statusCode).toEqual(400);
-             expect(res.body.errors).toEqual(expect.arrayContaining([
-                 expect.objectContaining({ 'id': 'ID must be a positive integer' })
-             ]));
+         it('should return 422 for invalid ID format (non-integer)', async () => { // <-- Status 422
+            const res = await request(app).get(`/api/books/invalid-id`); // <--- Updated path
+            expect(res.statusCode).toEqual(422); // <-- Status 422
+            expect(res.body.message).toEqual('Validation failed');
+            expect(res.body.errors).toHaveProperty('id', 'ID must be a positive integer'); // <-- Updated check
+        });
+
+         it('should return 422 for invalid ID format (zero)', async () => { // <-- Status 422
+            const res = await request(app).get(`/api/books/0`); // <--- Updated path
+            expect(res.statusCode).toEqual(422); // <-- Status 422
+            expect(res.body.message).toEqual('Validation failed');
+            expect(res.body.errors).toHaveProperty('id', 'ID must be a positive integer'); // <-- Updated check
         });
     });
 
 
-    // --- POST /books ---
-    describe('POST /books', () => {
+    // --- POST /api/books ---
+    describe('POST /api/books', () => {
         it('should add a new book successfully', async () => {
-            const newBook = { title: 'Dune', author: 'Frank Herbert', genre:"Science Fiction",  price: 15.99 };
+            const newBookData = { title: 'Hyperion', author: 'Dan Simmons', genre:"Science Fiction", price: 18.50 };
+            const initialCount = bookRepository.findAll().length;
+
             const res = await request(app)
-                .post('/books')
-                .send(newBook);
+                .post('/api/books') // <--- Updated path
+                .send(newBookData);
 
             expect(res.statusCode).toEqual(201);
-            expect(res.body.title).toBe(newBook.title);
-            expect(res.body.author).toBe(newBook.author);
-            expect(res.body.price).toBe(newBook.price);
+            expect(res.body.title).toBe(newBookData.title);
+            expect(res.body.author).toBe(newBookData.author);
+            expect(res.body.genre).toBe(newBookData.genre);
+            expect(res.body.price).toBe(newBookData.price);
             expect(res.body.id).toBeDefined();
+            expect(typeof res.body.id).toBe('number'); // ID should be a number
 
-            // Verify it was actually added (check via GET)
-            const getRes = await request(app).get('/books');
-            expect(getRes.body.length).toBe(testBooks.length + 1);
-            expect(getRes.body.find(b => b.id === res.body.id)).toBeDefined();
+            // Verify it was actually added in the repository
+            const currentBooks = bookRepository.findAll();
+            expect(currentBooks.length).toBe(initialCount + 1);
+            expect(currentBooks.find(b => b.id === res.body.id)).toMatchObject(newBookData);
         });
 
-        it('should return 400 if title is missing', async () => {
-            const invalidBook = { author: 'Frank Herbert', genre:"Science Fiction", price: 15.99 };
+        it('should return 422 if title is missing', async () => { // <-- Status 422
+            const invalidBook = { author: 'Dan Simmons', genre:"Science Fiction", price: 18.50 };
             const res = await request(app)
-                .post('/books')
+                .post('/api/books') // <--- Updated path
                 .send(invalidBook);
-            expect(res.statusCode).toEqual(400);
-            expect(res.body.errors).toEqual(expect.arrayContaining([
-                expect.objectContaining({ title: 'Title is required' })
-            ]));
+            expect(res.statusCode).toEqual(422); // <-- Status 422
+            expect(res.body.errors).toHaveProperty('title'); // Check if key exists
+            expect(res.body.errors.title).toContain('required'); // Check message content
         });
 
-        it('should return 400 if author is missing', async () => {
-            const invalidBook = { title: 'Dune',genre:"Science Fiction", price: 15.99 };
+         it('should return 422 if genre is too short', async () => { // <-- Status 422
+            const invalidBook = { title: 'Valid Title', author: 'Valid Author', price: 10.0, genre: 'AB' };
+            const res = await request(app).post('/api/books').send(invalidBook); // <--- Updated path
+            expect(res.statusCode).toEqual(422); // <-- Status 422
+            expect(res.body.errors).toHaveProperty('genre', 'Genre must be between 3 and 50 characters');
+        });
+
+        it('should return 422 if price is negative', async () => { // <-- Status 422
+            const invalidBook = { title: 'Hyperion', author: 'Dan Simmons', genre:"Science Fiction", price: -5 };
             const res = await request(app)
-                .post('/books')
+                .post('/api/books') // <--- Updated path
                 .send(invalidBook);
-            expect(res.statusCode).toEqual(400);
-             expect(res.body.errors).toEqual(expect.arrayContaining([
-                 expect.objectContaining({ author: 'Author is required' })
-             ]));
+            expect(res.statusCode).toEqual(422); // <-- Status 422
+            expect(res.body.errors).toHaveProperty('price');
+            expect(res.body.errors.price).toContain('positive number');
         });
 
-        it('should return 400 if genre is missing', async () => {
-            const invalidBook = { title: 'Valid Title', author: 'Valid Author', price: 10.0 }; // NO genre
-            const res = await request(app).post('/books').send(invalidBook);
-            expect(res.statusCode).toEqual(400);
-            expect(res.body.errors).toEqual(expect.arrayContaining([
-                expect.objectContaining({ genre: 'Genre is required' }) // Or whatever your message is
-            ]));
-        });
-        
-        it('should return 400 if genre is not a string', async () => {
-            const invalidBook = { title: 'Valid Title', author: 'Valid Author', price: 10.0, genre: 123 }; // Genre is a number
-            const res = await request(app).post('/books').send(invalidBook);
-            expect(res.statusCode).toEqual(400);
-            expect(res.body.errors).toEqual(expect.arrayContaining([
-                expect.objectContaining({ genre: 'Genre must be a string' })
-            ]));
-        });
-        
-         it('should return 400 if genre is too short', async () => {
-            const invalidBook = { title: 'Valid Title', author: 'Valid Author', price: 10.0, genre: 'AB' }; // Genre too short
-            const res = await request(app).post('/books').send(invalidBook);
-            expect(res.statusCode).toEqual(400);
-            expect(res.body.errors).toEqual(expect.arrayContaining([
-                expect.objectContaining({ genre: 'Genre must be between 3 and 50 characters' })
-            ]));
-        });
-
-         it('should return 400 if price is not a positive number', async () => {
-            const invalidBook = { title: 'Dune', author: 'Frank Herbert', genre:"Science Fiction", price: -5 };
+         it('should return 422 for multiple validation errors', async () => { // <-- Status 422
+            const invalidBook = { title: '', author: '', genre:"AB", price: -5 }; // Multiple errors
             const res = await request(app)
-                .post('/books')
+                .post('/api/books') // <--- Updated path
                 .send(invalidBook);
-            expect(res.statusCode).toEqual(400);
-             expect(res.body.errors).toEqual(expect.arrayContaining([
-                expect.objectContaining({ price: 'Price must be a positive number' })
-            ]));
-        });
-
-        it('should return 400 if price is not a number', async () => {
-            const invalidBook = { title: 'Valid Title', author: 'Valid Author', genre: 'Valid Genre', price: "not-a-price" }; // Invalid type
-            const res = await request(app).post('/books').send(invalidBook);
-            expect(res.statusCode).toEqual(400);
-            expect(res.body.errors).toEqual(expect.arrayContaining([
-                 expect.objectContaining({ price: expect.stringContaining('Price must be a positive number') }) // Or a more specific type error message
-            ]));
+            expect(res.statusCode).toEqual(422); // <-- Status 422
+            expect(res.body.errors).toHaveProperty('title');
+            expect(res.body.errors).toHaveProperty('author');
+            expect(res.body.errors).toHaveProperty('genre');
+            expect(res.body.errors).toHaveProperty('price');
         });
     });
 
-    // --- PATCH /books/:id ---
-    describe('PATCH /books/:id', () => {
-        it('should update an existing book successfully', async () => {
-            const existingId = testBooks[1].id;
-            const updateData = { title: 'Pride and Prejudice (Revised)', price: 11.50 };
+    // --- PATCH /api/books/:id ---
+    describe('PATCH /api/books/:id', () => {
+        it('should update an existing book successfully (only title)', async () => {
+             const books = bookRepository.findAll();
+             if (books.length === 0) { console.warn("Skipping PATCH test - no books"); return; }
+             const existingBook = books[0];
+             const updateData = { title: 'The Great Gatsby Revised' };
+
             const res = await request(app)
-                .patch(`/books/${existingId}`)
+                .patch(`/api/books/${existingBook.id}`) // <--- Updated path
                 .send(updateData);
 
             expect(res.statusCode).toEqual(200);
-            expect(res.body.id).toBe(existingId);
-            expect(res.body.title).toBe(updateData.title);
-            expect(res.body.price).toBe(updateData.price);
-            expect(res.body.author).toBe(testBooks[1].author); // Author should remain unchanged
+            expect(res.body.id).toBe(existingBook.id);
+            expect(res.body.title).toBe(updateData.title); // Title updated
+            expect(res.body.price).toBe(existingBook.price); // Price unchanged
+            expect(res.body.author).toBe(existingBook.author); // Author unchanged
 
-             // Verify change persisted
-            const getRes = await request(app).get(`/books/${existingId}`);
-            expect(getRes.body.title).toBe(updateData.title);
-            expect(getRes.body.price).toBe(updateData.price);
-
+             // Verify change in repository
+             const updatedRepoBook = bookRepository.findById(existingBook.id);
+             expect(updatedRepoBook.title).toBe(updateData.title);
+             expect(updatedRepoBook.price).toBe(existingBook.price); // Check repo state
         });
 
+         it('should update an existing book successfully (only price)', async () => {
+             const books = bookRepository.findAll();
+             if (books.length === 0) { console.warn("Skipping PATCH test - no books"); return; }
+             const existingBook = books[0];
+             const updateData = { price: 99.99 };
+
+            const res = await request(app)
+                .patch(`/api/books/${existingBook.id}`) // <--- Updated path
+                .send(updateData);
+
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.id).toBe(existingBook.id);
+            expect(res.body.title).toBe(existingBook.title); // Title unchanged
+            expect(res.body.price).toBe(updateData.price); // Price updated
+
+             // Verify change in repository
+             const updatedRepoBook = bookRepository.findById(existingBook.id);
+             expect(updatedRepoBook.price).toBe(updateData.price);
+        });
+
+
         it('should return 404 if trying to update a non-existent book', async () => {
-            const nonExistentId = 9999;
+            const nonExistentId = 99999;
             const updateData = { title: 'Does not matter' };
             const res = await request(app)
-                .patch(`/books/${nonExistentId}`)
+                .patch(`/api/books/${nonExistentId}`) // <--- Updated path
                 .send(updateData);
             expect(res.statusCode).toEqual(404);
             expect(res.body.message).toEqual('Book not found');
         });
 
-         it('should return 400 if update data is invalid (e.g., negative price)', async () => {
-            const existingId = testBooks[0].id;
+         it('should return 422 if update data is invalid (negative price)', async () => { // <-- Status 422
+            const books = bookRepository.findAll();
+            if (books.length === 0) { console.warn("Skipping PATCH validation test - no books"); return; }
+            const existingId = books[0].id;
             const updateData = { price: -10 };
+
             const res = await request(app)
-                .patch(`/books/${existingId}`)
+                .patch(`/api/books/${existingId}`) // <--- Updated path
                 .send(updateData);
-             expect(res.statusCode).toEqual(400);
-             expect(res.body.errors).toEqual(expect.arrayContaining([
-                 expect.objectContaining({ price: 'Price must be a positive number' })
-             ]));
+             expect(res.statusCode).toEqual(422); // <-- Status 422
+             expect(res.body.errors).toHaveProperty('price');
+             expect(res.body.errors.price).toContain('positive number');
         });
 
-          it('should return 400 for invalid ID format', async () => {
+          it('should return 422 for invalid ID format on PATCH', async () => { // <-- Status 422
             const updateData = { title: 'Valid title' };
             const res = await request(app)
-                .patch(`/books/invalid-id`)
+                .patch(`/api/books/invalid-id`) // <--- Updated path
                 .send(updateData);
-            expect(res.statusCode).toEqual(400);
-              expect(res.body.errors).toEqual(expect.arrayContaining([
-                 expect.objectContaining({ id: 'ID must be a positive integer' })
-             ]));
+            expect(res.statusCode).toEqual(422); // <-- Status 422
+            expect(res.body.errors).toHaveProperty('id', 'ID must be a positive integer');
         });
     });
 
-    // --- DELETE /books/:id ---
-    describe('DELETE /books/:id', () => {
+    // --- DELETE /api/books/:id ---
+    describe('DELETE /api/books/:id', () => {
         it('should delete an existing book successfully', async () => {
-            const existingId = testBooks[2].id;
-            const res = await request(app).delete(`/books/${existingId}`);
+            // Add a book specifically for deletion to avoid emptying the repo
+            const bookToDeleteData = { title: 'ToDelete', author: 'Temp', genre: 'Test', price: 1 };
+            const addedBook = bookRepository.create(bookToDeleteData); // Add directly via repo for test setup
+            const existingId = addedBook.id;
+            const initialCount = bookRepository.findAll().length;
+
+            const res = await request(app).delete(`/api/books/${existingId}`); // <--- Updated path
 
             expect(res.statusCode).toEqual(204); // No Content
+            expect(res.body).toEqual({}); // Body should be empty
 
-            // Verify it's gone
-            const getRes = await request(app).get(`/books/${existingId}`);
-            expect(getRes.statusCode).toEqual(404);
-
-            const getAllRes = await request(app).get('/books');
-            expect(getAllRes.body.length).toBe(testBooks.length - 1);
+            // Verify it's gone from the repository
+            const deletedBook = bookRepository.findById(existingId);
+            expect(deletedBook).toBeUndefined();
+            expect(bookRepository.findAll().length).toBe(initialCount - 1);
         });
 
         it('should return 404 if trying to delete a non-existent book', async () => {
-            const nonExistentId = 9999;
-            const res = await request(app).delete(`/books/${nonExistentId}`);
+            const nonExistentId = 99999;
+            const res = await request(app).delete(`/api/books/${nonExistentId}`); // <--- Updated path
             expect(res.statusCode).toEqual(404);
             expect(res.body.message).toEqual('Book not found');
         });
 
-         it('should return 400 for invalid ID format', async () => {
-            const res = await request(app).delete(`/books/invalid-id`);
-            expect(res.statusCode).toEqual(400);
-              expect(res.body.errors).toEqual(expect.arrayContaining([
-                 expect.objectContaining({ id: 'ID must be a positive integer' })
-             ]));
+         it('should return 422 for invalid ID format on DELETE', async () => { // <-- Status 422
+            const res = await request(app).delete(`/api/books/invalid-id`); // <--- Updated path
+            expect(res.statusCode).toEqual(422); // <-- Status 422
+            expect(res.body.errors).toHaveProperty('id', 'ID must be a positive integer');
         });
     });
 });

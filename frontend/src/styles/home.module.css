@@ -2,13 +2,14 @@
     flex:1;
     display: felx;
     flex-direction: column;
-    max-width: 100%;
+    overflow-y:auto ;
     padding: 20px;
+    height: calc(100vh - 100px);
 }
 
 .header {
     display: flex;
-    width: 100%;
+    width: auto;
     flex-direction: row;
     justify-content: start;
     padding: 20px;
@@ -22,7 +23,7 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    margin: auto;
+    margin-left: auto;
 }
 
 
@@ -39,3 +40,4 @@
     outline: none;
     box-shadow: 5px 15px 10px rgba(0,0,0,0.2);
 }
+

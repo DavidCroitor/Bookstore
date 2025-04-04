@@ -4,132 +4,478 @@
         "title": "1984",
         "author": "George Orwell",
         "genre": "Dystopian",
-        "price": 9.99
+        "price": 9.99,
+        "rating": 4.7
     },
     {
         "id": 2,
         "title": "To Kill a Mockingbird",
         "author": "Harper Lee",
         "genre": "Classic",
-        "price": 15.99
+        "price": 15.99,
+        "rating": 4.8
     },
     {
         "id": 3,
         "title": "Mere Christianity",
         "author": "C.S. Lewis",
         "genre": "Apologetics",
-        "price": 12.99
+        "price": 12.99,
+        "rating": 4.5
     },
     {
         "id": 4,
         "title": "The Picture of Dorian Gray",
         "author": "Oscar Wilde",
         "genre": "Fiction",
-        "price": 19.99
+        "price": 19.99,
+        "rating": 4.3
     },
     {
         "id": 5,
         "title": "Brave New World",
         "author": "Aldous Huxley",
         "genre": "Dystopian",
-        "price": 10.99
+        "price": 10.99,
+        "rating": 4.4
     },
     {
         "id": 6,
         "title": "The Great Gatsby",
         "author": "F. Scott Fitzgerald",
         "genre": "Classic",
-        "price": 14.99
+        "price": 14.99,
+        "rating": 4.2
     },
     {
         "id": 7,
         "title": "The Hobbit",
         "author": "J.R.R. Tolkien",
         "genre": "Fantasy",
-        "price": 13.99
+        "price": 13.99,
+        "rating": 4.6
     },
     {
         "id": 8,
         "title": "Thinking, Fast and Slow",
         "author": "Daniel Kahneman",
         "genre": "Psychology",
-        "price": 16.99
+        "price": 16.99,
+        "rating": 4.7
     },
     {
         "id": 9,
         "title": "Pride and Prejudice",
         "author": "Jane Austen",
         "genre": "Romance",
-        "price": 11.99
+        "price": 11.99,
+        "rating": 4.5
     },
     {
         "id": 10,
         "title": "The Catcher in the Rye",
         "author": "J.D. Salinger",
         "genre": "Fiction",
-        "price": 8.99
+        "price": 8.99,
+        "rating": 3.8
     },
     {
         "id": 11,
         "title": "Sapiens: A Brief History of Humankind",
         "author": "Yuval Noah Harari",
         "genre": "History",
-        "price": 18.99
+        "price": 18.99,
+        "rating": 4.8
     },
     {
         "id": 12,
         "title": "The Road",
         "author": "Cormac McCarthy",
         "genre": "Post-Apocalyptic",
-        "price": 12.49
+        "price": 12.49,
+        "rating": 4.1
     },
     {
         "id": 13,
         "title": "Meditations",
         "author": "Marcus Aurelius",
         "genre": "Philosophy",
-        "price": 10.49
+        "price": 10.49,
+        "rating": 4.6
     },
     {
         "id": 14,
         "title": "The Alchemist",
         "author": "Paulo Coelho",
         "genre": "Fiction",
-        "price": 9.49
+        "price": 9.49,
+        "rating": 3.9
     },
     {
         "id": 15,
         "title": "Dune",
         "author": "Frank Herbert",
         "genre": "Science Fiction",
-        "price": 17.99
+        "price": 17.99,
+        "rating": 4.5
     },
     {
         "id": 16,
         "title": "Educated",
         "author": "Tara Westover",
         "genre": "Memoir",
-        "price": 13.49
+        "price": 13.49,
+        "rating": 4.7
     },
     {
         "id": 17,
         "title": "The Divine Comedy",
         "author": "Dante Alighieri",
         "genre": "Epic Poetry",
-        "price": 20.99
+        "price": 20.99,
+        "rating": 4.0
     },
     {
         "id": 18,
         "title": "Crime and Punishment",
         "author": "Fyodor Dostoevsky",
         "genre": "Classic",
-        "price": 15.49
+        "price": 15.49,
+        "rating": 4.4
     },
     {
         "id": 19,
         "title": "Animal Farm",
         "author": "George Orwell",
         "genre": "Satire",
-        "price": 7.99
+        "price": 7.99,
+        "rating": 4.6
+    },
+    {
+        "id": 20,
+        "title": "The Brothers Karamazov",
+        "author": "Fyodor Dostoevsky",
+        "genre": "Philosophical Fiction",
+        "price": 14.99,
+        "rating": 4.5
+    },
+    {
+        "id": 21,
+        "title": "The Hitchhiker's Guide to the Galaxy",
+        "author": "Douglas Adams",
+        "genre": "Science Fiction",
+        "price": 11.99,
+        "rating": 4.7
+    },
+    {
+        "id": 22,
+        "title": "The Fault in Our Stars",
+        "author": "John Green",
+        "genre": "Young Adult",
+        "price": 10.99,
+        "rating": 4.3
+    },
+    {
+        "id": 23,
+        "title": "The Kite Runner",
+        "author": "Khaled Hosseini",
+        "genre": "Fiction",
+        "price": 12.99,
+        "rating": 4.5
+    },
+    {
+        "id": 24,
+        "title": "The Art of War",
+        "author": "Sun Tzu",
+        "genre": "Military Strategy",
+        "price": 8.99,
+        "rating": 4.2
+    },
+    {
+        "id": 25,
+        "title": "The Da Vinci Code",
+        "author": "Dan Brown",
+        "genre": "Thriller",
+        "price": 14.49,
+        "rating": 4.1
+    },
+    {
+        "id": 26,
+        "title": "Lord of the Flies",
+        "author": "William Golding",
+        "genre": "Allegory",
+        "price": 9.49,
+        "rating": 4.0
+    },
+    {
+        "id": 27,
+        "title": "Moby Dick",
+        "author": "Herman Melville",
+        "genre": "Adventure",
+        "price": 16.49,
+        "rating": 3.9
+    },
+    {
+        "id": 28,
+        "title": "War and Peace",
+        "author": "Leo Tolstoy",
+        "genre": "Historical Fiction",
+        "price": 22.99,
+        "rating": 4.3
+    },
+    {
+        "id": 29,
+        "title": "The Chronicles of Narnia",
+        "author": "C.S. Lewis",
+        "genre": "Fantasy",
+        "price": 15.99,
+        "rating": 4.6
+    },
+    {
+        "id": 30,
+        "title": "Fahrenheit 451",
+        "author": "Ray Bradbury",
+        "genre": "Dystopian",
+        "price": 10.49,
+        "rating": 4.5
+    },
+    {
+        "id": 31,
+        "title": "The Shining",
+        "author": "Stephen King",
+        "genre": "Horror",
+        "price": 13.99,
+        "rating": 4.4
+    },
+    {
+        "id": 32,
+        "title": "Gone with the Wind",
+        "author": "Margaret Mitchell",
+        "genre": "Historical Fiction",
+        "price": 17.49,
+        "rating": 4.2
+    },
+    {
+        "id": 33,
+        "title": "The Lord of the Rings",
+        "author": "J.R.R. Tolkien",
+        "genre": "Fantasy",
+        "price": 24.99,
+        "rating": 4.9
+    },
+    {
+        "id": 34,
+        "title": "Jane Eyre",
+        "author": "Charlotte Brontë",
+        "genre": "Gothic Fiction",
+        "price": 11.49,
+        "rating": 4.4
+    },
+    {
+        "id": 35,
+        "title": "The Stand",
+        "author": "Stephen King",
+        "genre": "Post-Apocalyptic",
+        "price": 18.99,
+        "rating": 4.6
+    },
+    {
+        "id": 36,
+        "title": "A Game of Thrones",
+        "author": "George R.R. Martin",
+        "genre": "Fantasy",
+        "price": 16.99,
+        "rating": 4.7
+    },
+    {
+        "id": 37,
+        "title": "The Handmaid's Tale",
+        "author": "Margaret Atwood",
+        "genre": "Dystopian",
+        "price": 12.99,
+        "rating": 4.5
+    },
+    {
+        "id": 38,
+        "title": "Walden",
+        "author": "Henry David Thoreau",
+        "genre": "Philosophy",
+        "price": 9.99,
+        "rating": 4.1
+    },
+    {
+        "id": 39,
+        "title": "Frankenstein",
+        "author": "Mary Shelley",
+        "genre": "Gothic Fiction",
+        "price": 10.99,
+        "rating": 4.3
+    },
+    {
+        "id": 40,
+        "title": "Slaughterhouse-Five",
+        "author": "Kurt Vonnegut",
+        "genre": "Satire",
+        "price": 11.99,
+        "rating": 4.4
+    },
+    {
+        "id": 41,
+        "title": "Dracula",
+        "author": "Bram Stoker",
+        "genre": "Gothic Horror",
+        "price": 10.49,
+        "rating": 4.3
+    },
+    {
+        "id": 42,
+        "title": "Les Misérables",
+        "author": "Victor Hugo",
+        "genre": "Historical Fiction",
+        "price": 18.99,
+        "rating": 4.6
+    },
+    {
+        "id": 43,
+        "title": "The Odyssey",
+        "author": "Homer",
+        "genre": "Epic Poetry",
+        "price": 14.49,
+        "rating": 4.5
+    },
+    {
+        "id": 44,
+        "title": "The Stranger",
+        "author": "Albert Camus",
+        "genre": "Philosophical Fiction",
+        "price": 9.99,
+        "rating": 4.2
+    },
+    {
+        "id": 45,
+        "title": "Catch-22",
+        "author": "Joseph Heller",
+        "genre": "Satire",
+        "price": 12.99,
+        "rating": 4.4
+    },
+    {
+        "id": 46,
+        "title": "Beloved",
+        "author": "Toni Morrison",
+        "genre": "Historical Fiction",
+        "price": 13.99,
+        "rating": 4.3
+    },
+    {
+        "id": 47,
+        "title": "One Hundred Years of Solitude",
+        "author": "Gabriel García Márquez",
+        "genre": "Magical Realism",
+        "price": 15.99,
+        "rating": 4.7
+    },
+    {
+        "id": 48,
+        "title": "The Sun Also Rises",
+        "author": "Ernest Hemingway",
+        "genre": "Fiction",
+        "price": 11.49,
+        "rating": 4.1
+    },
+    {
+        "id": 49,
+        "title": "Rebecca",
+        "author": "Daphne du Maurier",
+        "genre": "Gothic Fiction",
+        "price": 10.99,
+        "rating": 4.4
+    },
+    {
+        "id": 50,
+        "title": "The Secret History",
+        "author": "Donna Tartt",
+        "genre": "Psychological Thriller",
+        "price": 14.99,
+        "rating": 4.5
+    },{
+        "id": 51,
+        "title": "The Bell Jar",
+        "author": "Sylvia Plath",
+        "genre": "Semi-Autobiographical Fiction",
+        "price": 12.49,
+        "rating": 4.3
+    },
+    {
+        "id": 52,
+        "title": "Wuthering Heights",
+        "author": "Emily Brontë",
+        "genre": "Gothic Fiction",
+        "price": 11.99,
+        "rating": 4.2
+    },
+    {
+        "id": 53,
+        "title": "Inferno",
+        "author": "Dante Alighieri",
+        "genre": "Epic Poetry",
+        "price": 16.99,
+        "rating": 4.5
+    },
+    {
+        "id": 54,
+        "title": "The Name of the Wind",
+        "author": "Patrick Rothfuss",
+        "genre": "Fantasy",
+        "price": 17.49,
+        "rating": 4.7
+    },
+    {
+        "id": 55,
+        "title": "The House of the Spirits",
+        "author": "Isabel Allende",
+        "genre": "Magical Realism",
+        "price": 13.99,
+        "rating": 4.4
+    },
+    {
+        "id": 56,
+        "title": "Norwegian Wood",
+        "author": "Haruki Murakami",
+        "genre": "Fiction",
+        "price": 14.99,
+        "rating": 4.3
+    },
+    {
+        "id": 57,
+        "title": "East of Eden",
+        "author": "John Steinbeck",
+        "genre": "Historical Fiction",
+        "price": 15.99,
+        "rating": 4.6
+    },
+    {
+        "id": 58,
+        "title": "The Shadow of the Wind",
+        "author": "Carlos Ruiz Zafón",
+        "genre": "Mystery",
+        "price": 13.49,
+        "rating": 4.6
+    },
+    {
+        "id": 59,
+        "title": "Cloud Atlas",
+        "author": "David Mitchell",
+        "genre": "Science Fiction",
+        "price": 12.99,
+        "rating": 4.4
+    },
+    {
+        "id": 60,
+        "title": "The Goldfinch",
+        "author": "Donna Tartt",
+        "genre": "Literary Fiction",
+        "price": 18.99,
+        "rating": 4.2
     }
 ]

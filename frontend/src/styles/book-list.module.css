@@ -1,9 +1,13 @@
 .booksContainer {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    margin: 25px 10px;
+    display: grid; /* Use Grid */
+    grid-template-columns: repeat(4, 1fr); /* 4 columns */
+    width: fit-content;
+    gap: 16px; /* Keep the gap */
+    margin-left: auto; /* Center the grid */
+    margin-right: auto; /* Center the grid */
+    padding-bottom: 16px; /* Add padding at the bottom if gap isn't enough before button */
 }
+
 
 .bookCard {
     border: 1px solid black;
@@ -13,6 +17,30 @@
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     background-color: #F1F0E9;
     transition: transform 0.2 ease;
+}
+
+.addBookCard {
+    background-color: #e8e7e1; /* Slightly different background */
+    border: 2px dashed #a0a0a0; /* Dashed border */
+    color: #555;
+    align-items: center; /* Center content horizontally */
+    justify-content: center; /* Center content vertically */
+    text-align: center;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.addBookCard:hover {
+    background-color: #dcdbd5; /* Darker on hover */
+    border-color: #888;
+    color: #333;
+}
+
+/* Style for the plus icon inside the add button card */
+.addBookCard .plusIcon {
+    font-size: 2.5rem; /* Large plus sign */
+    line-height: 1;
+    margin-bottom: 0.5rem;
 }
 
 .bookCard:hover {

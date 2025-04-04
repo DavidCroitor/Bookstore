@@ -1,0 +1,57 @@
+.dropdownButton {
+    display: inline-flex; /* Align text and icon */
+    align-items: center;
+    justify-content: center;
+    width: auto; /* Adjust width as needed, or keep auto */
+    padding: 0.5rem 1rem; /* Vertical and horizontal padding */
+    font-size: 0.875rem; /* Tailwind 'sm' */
+    font-weight: 500; /* Tailwind 'medium' */
+    color: #374151; /* Tailwind 'gray-700' */
+    background-color: #ffffff; /* White background */
+    border: 1px solid #d1d5db; /* Tailwind 'gray-300' border */
+    border-radius: 0.375rem; /* Tailwind 'md' */
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); /* Tailwind 'sm' shadow */
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+    margin-bottom: 25px;
+  }
+
+.dropdownButton:hover {
+    background-color: #f3f4f6; /* Tailwind 'gray-100' on hover */
+    border-color: #6a6d70; /* Tailwind 'gray-300' border */
+  }
+
+  .dropdownMenu {
+    position: absolute; /* ** Crucial for overlay ** */
+    width: 14rem; /* Tailwind 'w-56' */
+    background-color: #ffffff;
+    border-radius: 0.375rem; /* Tailwind 'md' */
+    border: 1px solid rgba(0, 0, 0, 0.05); /* Simulate ring */
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); /* Tailwind 'lg' shadow */
+    z-index: 20; /* ** Ensure it's above other content ** */
+    transform-origin: top right; /* For potential animations */
+    padding-top: 0.25rem;    /* Tailwind 'py-1' */
+    padding-bottom: 0.25rem; /* Tailwind 'py-1' */
+    list-style: none; /* Remove default list styling if using <ul> */
+    padding-left: 0; /* Remove default list padding */
+  }
+  
+  /* Individual menu item buttons */
+  .menuItem {
+    display: block; /* ** Makes items stack vertically ** */
+    width: 100%; /* ** Takes full width of the menu ** */
+    padding: 0.5rem 1rem; /* Tailwind 'px-4 py-2' */
+    font-size: 0.875rem; /* Tailwind 'sm' */
+    color: #374151; /* Tailwind 'gray-700' */
+    text-align: left; /* Align text to the left */
+    background-color: transparent; /* Clear default button background */
+    border: none; /* Clear default button border */
+    cursor: pointer;
+    white-space: nowrap; /* Prevent text wrapping */
+    transition: background-color 0.1s ease-in-out;
+  }
+  
+  .menuItem:hover {
+    background-color: #a9afb9; /* Tailwind 'gray-100' */
+    color: #1f2937; /* Tailwind 'gray-800' (optional darker text on hover) */
+  }

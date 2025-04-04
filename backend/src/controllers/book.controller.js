@@ -5,7 +5,20 @@ const handleGetAllBooks = async (req, res, next) => {
     try {
         // Pass query params directly to the service
         const { filter, sortBy, order } = req.query;
-        const books = await bookService.getAllBooks(filter, sortBy, order); // Service is now sync, but keep async for future DB calls
+
+        const page = parseInt(req.query.page, 10) || 1; // Default to page 1 if not provided
+        const limit = parseInt(req.query.limit, 10) || 10; // Default to 10 items per page if not provided
+
+        // Validate page and limit to be positive integers
+        if (page < 1) {
+            return res.status(400).json({ error: 'Page must be a positive integer' });
+        }
+        if (limit < 1) {
+            return res.status(400).json({ error: 'Limit must be a positive integer' });
+        }
+
+        // Call the service to get all books with pagination
+        const books = await bookService.getAllBooks(filter, sortBy, order, page, limit); // Service is now sync, but keep async for future DB calls
         res.status(200).json(books);
     } catch (error) {
         next(error); // Pass errors to the central error handler

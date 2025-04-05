@@ -6,9 +6,7 @@ import { useBooks } from '../context/book-context'; // Adjust path as needed
 const BookStatsDisplay = () => {
     const {
         books,
-        averagePrice,
-        mostExpensiveBook,
-        leastExpensiveBook
+        stats,
     } = useBooks();
 
     // Helper to format price, handles undefined book
@@ -24,14 +22,14 @@ const BookStatsDisplay = () => {
             {books && books.length > 0 ? (
                 <ul>
                     <li><strong>Total Books:</strong> {books.length}</li>
-                    <li><strong>Average Price:</strong> ${averagePrice.toFixed(2)}</li>
+                    <li><strong>Average Price:</strong> ${stats.averagePrice.toFixed(2)}</li>
                     <li>
-                        <strong>Most Expensive:</strong> {formatPrice(mostExpensiveBook)}
-                        {mostExpensiveBook ? ` (${mostExpensiveBook.title})` : ''}
+                        <strong>Most Expensive:</strong> {formatPrice(stats.mostExpensiveBook)}
+                        {stats.mostExpensiveBook ? ` (${stats.mostExpensiveBook.title})` : ''}
                     </li>
                     <li>
-                        <strong>Least Expensive:</strong> {formatPrice(leastExpensiveBook)}
-                        {leastExpensiveBook ? ` (${leastExpensiveBook.title})` : ''}
+                        <strong>Least Expensive:</strong> {formatPrice(stats.leastExpensiveBook)}
+                        {stats.leastExpensiveBook ? ` (${stats.leastExpensiveBook.title})` : ''}
                     </li>
                 </ul>
             ) : (

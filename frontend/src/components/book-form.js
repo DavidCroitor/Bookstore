@@ -1,7 +1,7 @@
 import { useDebugValue, useState } from 'react';
 import styles from '../styles/book-form.module.css';
 
-export default function BookForm({ onAddBook }) {
+export default function BookForm({ onAddBook, sumbitButtonLabel }) {
     const [form, setForm] = useState({ title: '', author: '', genre: '', price:''});
     const [error, setError] = useState({});
 
@@ -97,7 +97,9 @@ export default function BookForm({ onAddBook }) {
             </div>
             
 
-            <button type="submit" className={styles.addButton }>Add Book</button>
+            <button type="submit" className={styles.addButton }>
+                {sumbitButtonLabel}
+            </button>
         </form>
     );
 }

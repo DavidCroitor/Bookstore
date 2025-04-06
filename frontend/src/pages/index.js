@@ -117,18 +117,14 @@ export default function Home() {
                 </div>
             </header>
 
-            <SortControls/> {/* Resets to page 1 in context */}
-
-            {/* Display Initial Loading / Error State */}
+            <SortControls/>
+            
             {loadingInitial && <div className={styles.loading}>Loading books...</div>}
             {error && !loadingInitial && <div className={styles.error}>Error: {error}</div>}
 
-            {/* BookList now uses context internally, pass only click handler */}
-            {/* Render BookList even if initially empty, it handles its own empty message */}
-             <BookList onBookClick={handleEditBook} />
+            <BookList onBookClick={handleEditBook} />
 
-            {/* Remove PaginationControls component */}
-            {/* Loading indicator for subsequent pages handled inside BookList */}
+            
 
         </div>
     );

@@ -79,6 +79,7 @@ const getAllBooks = (filter, sortBy, order = 'asc', page = 1, limit = 10) => {
         totalBooks: totalBooks,
         limit: limit,
         stats: {
+            totalCount: allBooks.length,
             mostExpensiveBook: mostExpensiveBook,
             leastExpensiveBook: leastExpensiveBook,
             averagePrice: averagePrice,

@@ -51,13 +51,10 @@ export default function BookList({ onBookClick }) {
                 {/* Show "No books found" message */}
                 {showNoBooksMessage && <p className={styles.noBooksMessage}>No books found.</p>}
 
-                 {/* Show "Loading more..." indicator at the end */}
-                 {loadingMore && <div className={styles.loadingMore}>Loading more...</div>}
+                {loadingMore && <div className={styles.loadingMore}>Loading more...</div>}
 
-            </div> {/* End booksContainer */}
+            </div>
 
-            {/* Add Button Container */}
-            {/* Render Add button unless initial load is happening or there's an error blocking display */}
             {!loadingInitial && !error && (
                  <div className={styles.buttonContainer}>
                     <button onClick={handleAddButton} className={styles.addButton}>

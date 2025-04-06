@@ -21,7 +21,7 @@ const BookStatsDisplay = () => {
             <h2>Key Statistics</h2>
             {books && books.length > 0 ? (
                 <ul>
-                    <li><strong>Total Books:</strong> {books.length}</li>
+                    <li><strong>Total Books:</strong> {stats.totalCount}</li>
                     <li><strong>Average Price:</strong> ${stats.averagePrice.toFixed(2)}</li>
                     <li>
                         <strong>Most Expensive:</strong> {formatPrice(stats.mostExpensiveBook)}

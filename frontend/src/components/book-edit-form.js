@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import styles from '../styles/book-form.module.css';
 
-export default function BookEditForm({ book, onEditBook, onCancel, onDelete }) {
-    const [form, setForm] = useState({ ...book });
+export default function BookEditForm({ book, onEditBook, onCancel, onDelete, submitButtonLabel, deleteButtonLabel }) {
+    const [form, setForm] = useState({ id: book.id, ...book });
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -51,8 +51,14 @@ export default function BookEditForm({ book, onEditBook, onCancel, onDelete }) {
     const handleSubmit = (e) => {
         e.preventDefault();
 
+        if (!form.id) {
+            console.error('Missing book ID in form data', form);
+            alert('Error: Book ID is missing. Cannot update book.');
+            return;
+        }
+
         if (validateForm()) {
-                onEditBook(form);  // Handle adding book
+            onEditBook(form);  // Handle adding book
             
         }
     };
@@ -98,7 +104,7 @@ export default function BookEditForm({ book, onEditBook, onCancel, onDelete }) {
             <div className={styles.buttonGroup}>
                 <button 
                 type="submit" 
-                className={styles.addButton}>Save Changes</button>
+                className={styles.addButton}>{submitButtonLabel}</button>
                 <button 
                 type="button" 
                 className={styles.cancelButton} 
@@ -106,7 +112,7 @@ export default function BookEditForm({ book, onEditBook, onCancel, onDelete }) {
                 <button 
                 type="button" 
                 className={styles.deleteButton} 
-                onClick={onDelete}>Delete</button>
+                onClick={onDelete}>{deleteButtonLabel}</button>
             </div>
         </form>
     );

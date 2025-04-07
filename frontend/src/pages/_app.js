@@ -5,13 +5,15 @@ import ConnectionStatus from '@/components/connection-status';
 
 function MyApp({ Component, pageProps }) {
     return (
-        <div className="appContainer">
-            <Sidebar />
-            <BooksProvider className="content">
-                <ConnectionStatus/>
-                <Component {...pageProps} />
-            </BooksProvider>
-        </div>
+      <div className="appContainer">
+        <Sidebar />
+        <BooksProvider>
+          <div className="content">
+            <ConnectionStatus/>
+            <Component {...pageProps} />
+          </div>
+        </BooksProvider>
+      </div>
     );
 }
 

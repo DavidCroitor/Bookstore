@@ -74,7 +74,7 @@ export const BooksProvider = ({ children }) => {
         closestToAverageBook: null,
         averagePrice: 0,
     });
-
+    
     const [isOnline, setIsOnline] = useState(typeof window !== 'undefined' ? navigator.onLine : true);
     const [isServerReachable, setIsServerReachable] = useState(true);
     const [actionQueue, setActionQueue] = useState(() => {
@@ -92,6 +92,7 @@ export const BooksProvider = ({ children }) => {
         }
         return {};
     });
+    const [socket, setSocket] = useState(null);
 
     // Helper functions to support fetchBooks
     const updateBooksState = (serverBooks, pageToFetch, isNewQuery) => {
@@ -560,6 +561,9 @@ export const BooksProvider = ({ children }) => {
     useEffect(() => {
         // Fetch page 1 on initial mount with default sort/filter
         fetchBooks(1, DEFAULT_SORT_BY, DEFAULT_SORT_ORDER, null, true); // true = new query
+        
+        // Also fetch full statistics on initial load
+        fetchFullStatistics();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); // Run only once on mount
 
@@ -1043,7 +1047,75 @@ export const BooksProvider = ({ children }) => {
         }
     };
 
+    // Initialize WebSocket connection
+    useEffect(() => {
+        // Create WebSocket connection
+        const ws = new WebSocket('ws://localhost:5000');
+        
+        ws.onopen = () => {
+            console.log('Connected to WebSocket server');
+            setIsServerReachable(true);
+        };
+        
+        ws.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+            
+            if (message.type === 'new_book') {
+                console.log('Received new book:', message.data);
+                // Add the new book to the books list
+                setBooks(prevBooks => [...prevBooks, message.data]);
+                
+                // If we're offline, we'll queue this book to be synced later
+                if (!isOnline || !isServerReachable) {
+                    console.log('Server sent update while client is offline - interesting case!');
+                    // Handle this edge case if needed
+                }
+            }
+        };
+        
+        ws.onclose = () => {
+            console.log('Disconnected from WebSocket server');
+            setIsServerReachable(false);
+        };
+        
+        ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
+            setIsServerReachable(false);
+        };
+        
+        setSocket(ws);
+        
+        // Cleanup on unmount
+        return () => {
+            if (ws) {
+                ws.close();
+            }
+        };
+    }, []);  // Empty dependency array means this runs once on mount
 
+    // Function to fetch complete statistics for all books
+    const fetchFullStatistics = useCallback(async () => {
+        // Don't attempt if offline or server unreachable
+        if (!isOnline || !isServerReachable) {
+            return;
+        }
+        
+        try {
+            const url = `${API_URL}/books/stats`;
+            const response = await fetch(url);
+            
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData?.message || `HTTP error! Status: ${response.status}`);
+            }
+            
+            const statsData = await response.json();
+            setStats(statsData);
+        } catch (err) {
+            console.error("Error fetching full statistics:", err);
+            // Don't update error state to avoid interfering with main book fetching
+        }
+    }, [isOnline, isServerReachable]);
 
         
         // --- Derived State ---
@@ -1068,12 +1140,13 @@ return (
             fetchNextPage,
             filterBooks,
             sortBooks,
-            // Add these values
+            fetchFullStatistics,
             isOnline,
             isServerReachable,
             isSyncing,
             actionQueue: actionQueue.length, // Just expose the count
-            triggerSync
+            triggerSync,
+            socket, // Make socket available to consumers if needed
         }}
     >
         {children}

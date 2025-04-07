@@ -66,10 +66,20 @@ const handleDeleteBook = async (req, res, next) => {
     }
 };
 
+const handleGetBookStats = async (req, res, next) => {
+    try {
+        const stats = await bookService.getFullStatistics();
+        res.status(200).json(stats);
+    } catch (error) {
+        next(error); // Pass errors to the central error handler
+    }
+};
+
 module.exports = {
     handleGetAllBooks,
     handleGetBookById,
     handleCreateBook,
     handleUpdateBook,
     handleDeleteBook,
+    handleGetBookStats,
 };

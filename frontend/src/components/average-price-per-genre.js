@@ -1,27 +1,22 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { useBooks } from '../context/book-context';
-import { Bar } from 'react-chartjs-2';
-import {
-    Chart as ChartJS,
-    CategoryScale, // x-axis
-    LinearScale,   // y-axis
-    BarElement,    // The bars themselves
-    Title,
-    Tooltip,
-    Legend,
-    Ticks
-} from 'chart.js';
-
-// Register the necessary components
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
-
+import { 
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, 
+    Tooltip, Legend, ResponsiveContainer 
+} from 'recharts';
+import styles from '../styles/average-price-per-genre.module.css';
 
 const AveragePricePerGenreChart = () => {
-    const { books } = useBooks();
+    const { books, fetchFullStatistics } = useBooks();
+    
+    // Fetch statistics on component mount
+    useEffect(() => {
+        fetchFullStatistics();
+    }, [fetchFullStatistics]);
 
     const chartData = useMemo(() => {
         if (!books || books.length === 0) {
-            return { labels: [], datasets: [] };
+            return [];
         }
 
         // Calculate total price and count per genre
@@ -38,72 +33,40 @@ const AveragePricePerGenreChart = () => {
             return acc;
         }, {});
 
-        const labels = Object.keys(genrePrices);
-        // Calculate average price, handle potential division by zero
-        const data = labels.map(genre =>
-            genrePrices[genre].count > 0 ? (genrePrices[genre].total / genrePrices[genre].count).toFixed(2) : 0
-        );
+        // Convert to array format for Recharts
+        return Object.entries(genrePrices).map(([genre, data]) => ({
+            genre,
+            averagePrice: data.count > 0 
+                ? parseFloat((data.total / data.count).toFixed(2)) 
+                : 0
+        }));
+    }, [books]); // Re-calculate when books change
 
-        return {
-            labels,
-            datasets: [
-                {
-                    label: 'Average Price ($)',
-                    data: data,
-                    backgroundColor: 'rgba(54, 162, 235, 0.6)', // Example color blue
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1,
-                },
-            ],
-        };
-    }, [books]);
-
-    const options = {
-        responsive: true,
-        plugins: {
-            legend: {
-                display: false, // Often hide legend for single dataset bar charts
-                color: '#000'
-            },
-            title: {
-                display: true,
-                text: 'Average Book Price per Genre',
-                color: '#000'
-            },
-        },
-        scales: { // Configure axes
-            y: {
-                beginAtZero: true, // Start y-axis at 0
-                title: {
-                    display: true,
-                    text: 'Average Price ($)',
-                    color: '#000'
-                },
-                ticks: {
-                    color: '#000',
-                }
-            },
-            x: {
-                title: {
-                   display: true,
-                   text: "Genre",
-                   color: '#000',
-               },
-               ticks: {
-                   display: false,
-               }
-           }
-        }
-        
-    };
+    if (!chartData || chartData.length === 0) {
+        return <div className={styles.noData}>No average price data available</div>;
+    }
 
     return (
-        <div style={{ maxWidth: '600px', margin: 'auto' }}>
-             {books && books.length > 0 ? (
-                <Bar options={options} data={chartData} />
-             ) : (
-                <p>No book data available to display average prices.</p>
-             )}
+        <div className={styles.chartContainer}>
+            <h2>Average Book Price per Genre (Real-time)</h2>
+            <ResponsiveContainer width="100%" height={400}>
+                <BarChart
+                    data={chartData}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis 
+                        dataKey="genre" 
+                        angle={-45}
+                        textAnchor="end"
+                        height={80}
+                    />
+                    <YAxis label={{ value: 'Price ($)', angle: -90, position: 'insideLeft' }} />
+                    <Tooltip formatter={(value) => ['$' + value, 'Average Price']} />
+                    <Legend />
+                    <Bar dataKey="averagePrice" name="Average Price ($)" fill="#36A2EB" />
+                </BarChart>
+            </ResponsiveContainer>
         </div>
     );
 };

@@ -17,4 +17,5 @@ html, body {
 
 .content {
     flex: auto;
+    overflow: auto;
 }

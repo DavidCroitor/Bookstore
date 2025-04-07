@@ -88,6 +88,46 @@ const getAllBooks = (filter, sortBy, order = 'asc', page = 1, limit = 10) => {
     };
 };
 
+const getFullStatistics = () => {
+    const allBooks = bookRepository.findAll();
+    
+    let mostExpensiveBook = null;
+    let leastExpensiveBook = null;
+    let averagePrice = 0;
+    let closestToAverageBook = null;
+
+    if (allBooks.length > 0) {
+        // Use reduce for most/least expensive
+        mostExpensiveBook = allBooks.reduce((max, book) =>
+            (safeParseFloat(book.price) > safeParseFloat(max.price) ? book : max),
+        allBooks[0] // Initial value for reduce
+        );
+
+        leastExpensiveBook = allBooks.reduce((min, book) =>
+            (safeParseFloat(book.price) < safeParseFloat(min.price) ? book : min),
+        allBooks[0] // Initial value for reduce
+        );
+
+        // Calculate average price
+        const totalPrice = allBooks.reduce((sum, book) => sum + safeParseFloat(book.price), 0);
+        averagePrice = totalPrice / allBooks.length;
+
+        // Find closest to average
+        closestToAverageBook = allBooks.reduce((closest, book) =>
+             Math.abs(safeParseFloat(book.price) - averagePrice) < Math.abs(safeParseFloat(closest.price) - averagePrice) ? book : closest,
+        allBooks[0] // Initial value for reduce
+        );
+    }
+
+    return {
+        totalCount: allBooks.length,
+        mostExpensiveBook: mostExpensiveBook,
+        leastExpensiveBook: leastExpensiveBook,
+        averagePrice: averagePrice,
+        closestToAverageBook: closestToAverageBook,
+    };
+};
+
 const getBookById = (id) => {
     const book = bookRepository.findById(id);
     if (!book) {
@@ -128,10 +168,23 @@ const deleteBook = (id) => {
     // No return value needed for successful delete typically
 };
 
+const createBook = (bookData) => {
+    // Validate book data if necessary
+    if (!bookData.title || !bookData.author) {
+        throw createError(400, 'Title and author are required');
+    }
+
+    // Use the repository to create a new book
+    const newBook = bookRepository.create(bookData);
+    return newBook;
+};
+
 module.exports = {
     getAllBooks,
     getBookById,
     addBook,
     updateBook,
     deleteBook,
+    createBook,
+    getFullStatistics,
 };

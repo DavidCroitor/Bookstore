@@ -1,4 +1,6 @@
-const app = require('./src/app'); // Import the configured Express app
+const app = require('./src/app');
+const websocketService = require('./src/services/websocket-service');
+const bookGenerator = require('./src/services/book-generator');
 
 // Use environment variable for port or default
 const PORT = process.env.PORT || 5000;
@@ -6,27 +8,34 @@ const PORT = process.env.PORT || 5000;
 let server;
 
 // Only start server if not in test environment
-// (Test runners often manage server lifecycle)
 if (process.env.NODE_ENV !== 'test') {
     server = app.listen(PORT, () => {
         console.log(`Server listening on http://localhost:${PORT}`);
         console.log(`API available at http://localhost:${PORT}/api`);
+        
+        // Initialize WebSocket service with our HTTP server
+        websocketService.initialize(server);
+        console.log('WebSocket server initialized');
+        
+        // Start the book generator
+        bookGenerator.start(15000); // Generate a new book every 15 seconds
     });
 }
 
 // Graceful shutdown (optional but good practice)
 const shutdown = () => {
     console.log('Shutting down server...');
+    
+    // Stop the book generator
+    bookGenerator.stop();
+    
     server.close(() => {
         console.log('Server closed.');
-        // Add DB closing logic here if needed
         process.exit(0);
     });
 };
 
-process.on('SIGTERM', shutdown); // Standard signal for termination
-process.on('SIGINT', shutdown); // Signal for Ctrl+C
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
 
-// Export the app instance *only if needed* for specific programmatic use or some test setups
-// For typical supertest integration tests, you often import this server.js file.
 module.exports = { app, server };

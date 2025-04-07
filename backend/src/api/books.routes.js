@@ -10,6 +10,9 @@ const {
 
 const router = express.Router();
 
+// GET /api/books/stats - Get full statistics for all books
+router.get('/stats', bookController.handleGetBookStats);
+
 // GET /api/books - Apply query validation, then validation handler, then controller
 router.get(
     '/',

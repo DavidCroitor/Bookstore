@@ -1,82 +1,66 @@
-import React, { useMemo } from 'react';
-import { useBooks } from '../context/book-context'; // Adjust path
-import { Bar } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+import React, { useState, useEffect } from 'react';
+import { useBooks } from '@/context/book-context';
+import { 
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, 
+    Tooltip, Legend, ResponsiveContainer 
+} from 'recharts';
+import styles from '../styles/genre-distribution-chart.module.css'; // Adjust path
 
 
 const GenreDistributionChart = () => {
-    const { books } = useBooks();
-
-    const chartData = useMemo(() => {
-        if (!books || books.length === 0) {
-            return { labels: [], datasets: [] };
-        }
-
+    const { books, fetchFullStatistics } = useBooks();
+    const [chartData, setChartData] = useState([]);
+    
+    // Fetch statistics on component mount
+    useEffect(() => {
+        fetchFullStatistics();
+    }, [fetchFullStatistics]);
+    
+    // Process books into chart data whenever the books array changes
+    useEffect(() => {
+        if (!books || books.length === 0) return;
+        
+        // Count books by genre
         const genreCounts = books.reduce((acc, book) => {
-            const genre = book.genre || 'Unknown'; // Handle undefined genre
-            acc[genre] = (acc[genre] || 0) + 1;
+            if (!book.genre) return acc;
+            acc[book.genre] = (acc[book.genre] || 0) + 1;
             return acc;
         }, {});
-
-        const labels = Object.keys(genreCounts);
-        const data = Object.values(genreCounts);
-
-        return {
-            labels,
-            datasets: [
-                {
-                    label: '# of Books',
-                    data: data,
-                    backgroundColor: 'rgba(75, 192, 192, 0.6)', // Example color
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1,
-                },
-            ],
-        };
-    }, [books]); // Re-calculate only when books array changes
-
-    const options = {
-        responsive: true,
-        plugins: {
-            legend: {
-                display: false,
-            },
-            title: {
-                display: true,
-                text: 'Books per Genre',
-                color: '#000',
-            },
-        },
-         scales: {
-            y: {
-                beginAtZero: true,
-                title: {
-                    display: true,
-                    text: 'Books',
-                    color: '#000',
-                },
-                ticks: {
-                    color: '#000',
-                }
-            },
-            x: {
-                 title: {
-                    display: true,
-                    text: "Genre",
-                    color: '#000',
-                },
-                ticks: {
-                    display: false,
-                }
-            }
-        },
-    };
-
+        
+        // Convert to array format for Recharts
+        const data = Object.entries(genreCounts).map(([genre, count]) => ({
+            genre,
+            count
+        }));
+        
+        setChartData(data);
+    }, [books]); // Re-process whenever books change
+    
+    if (!chartData || chartData.length === 0) {
+        return <div className={styles.noData}>No chart data available</div>;
+    }
+    
     return (
-        <div>
-            {books.length > 0 ? <Bar options={options} data={chartData} /> : <p>No book data available.</p>}
+        <div className={styles.chartContainer}>
+            <h2>Books by Genre (Real-time)</h2>
+            <ResponsiveContainer width="100%" height={400}>
+                <BarChart
+                    data={chartData}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis 
+                        dataKey="genre" 
+                        angle={-45}
+                        textAnchor="end"
+                        height={80}
+                    />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="count" name="Number of Books" fill="#8884d8" />
+                </BarChart>
+            </ResponsiveContainer>
         </div>
     );
 };

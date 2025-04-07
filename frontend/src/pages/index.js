@@ -46,15 +46,12 @@ export default function Home() {
         const container = scrollContainerRef.current;
         if (!container) return; // Exit if ref not set yet
     
-        console.log(`Scroll Check: loadingInitial=${loadingInitial}, loadingMore=${loadingMore}, hasMorePages=${hasMorePages}`);
         if (!hasMorePages || loadingInitial || loadingMore) return;
     
         const { scrollTop, scrollHeight, clientHeight } = container; // Use container properties
     
-        console.log(`Container Scroll Pos: scrollTop=${scrollTop}, clientHeight=${clientHeight}, totalHeight=${scrollHeight}, Threshold Point=${scrollHeight - SCROLL_THRESHOLD}`);
-    
+        
         if (scrollTop + clientHeight >= scrollHeight - SCROLL_THRESHOLD) {
-            console.log("Near bottom of container, fetching next page...");
             fetchNextPage();
         }
     }, [hasMorePages, loadingInitial, loadingMore, fetchNextPage]); // Dependencies for the handler
@@ -62,29 +59,18 @@ export default function Home() {
     useEffect(() => {
         const container = scrollContainerRef.current; // Get the DOM element
 
-        // *** Check 1: Is 'container' null? ***
-        console.log("Effect running. Container Element:", container);
 
         if (container) { // Make sure it exists before adding listener
-            console.log("Attaching scroll listener to:", container);
             container.addEventListener('scroll', handleScroll);
 
             // Return cleanup function
             return () => {
-                // *** Check 2: Is cleanup running correctly? ***
-                // Ensure 'container' is still valid in closure
                 const currentContainer = scrollContainerRef.current; // Re-read ref here maybe? Or rely on closure? Closure should be fine.
-                if (container) { // Use the 'container' variable captured when listener was added
-                   console.log("Removing scroll listener from:", container);
+                if (container) { 
                    container.removeEventListener('scroll', handleScroll);
-                } else {
-                   console.log("Cleanup: Container was null or gone.");
                 }
             };
-        } else {
-            // *** Check 3: Why is 'container' null? ***
-            console.log("Effect ran, but container was null. Listener not attached.");
-        }
+        } 
     }, [handleScroll]); // Dependency is handleScroll
 
     // --- Other Handlers ---

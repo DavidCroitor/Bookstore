@@ -477,5 +477,125 @@
         "genre": "Literary Fiction",
         "price": 18.99,
         "rating": 4.2
+    },
+    {
+        "id": 61,
+        "title": "The Midnight Library",
+        "author": "Matt Haig",
+        "genre": "Fantasy",
+        "price": 13.99,
+        "rating": 4.3
+    },
+    {
+        "id": 62,
+        "title": "A Man Called Ove",
+        "author": "Fredrik Backman",
+        "genre": "Contemporary Fiction",
+        "price": 12.49,
+        "rating": 4.6
+    },
+    {
+        "id": 63,
+        "title": "The Night Circus",
+        "author": "Erin Morgenstern",
+        "genre": "Fantasy",
+        "price": 14.99,
+        "rating": 4.4
+    },
+    {
+        "id": 64,
+        "title": "Where the Crawdads Sing",
+        "author": "Delia Owens",
+        "genre": "Mystery",
+        "price": 15.99,
+        "rating": 4.7
+    },
+    {
+        "id": 65,
+        "title": "Project Hail Mary",
+        "author": "Andy Weir",
+        "genre": "Science Fiction",
+        "price": 16.49,
+        "rating": 4.8
+    },
+    {
+        "id": 66,
+        "title": "Circe",
+        "author": "Madeline Miller",
+        "genre": "Mythological Fiction",
+        "price": 13.99,
+        "rating": 4.5
+    },
+    {
+        "id": 67,
+        "title": "Normal People",
+        "author": "Sally Rooney",
+        "genre": "Literary Fiction",
+        "price": 12.99,
+        "rating": 4.0
+    },
+    {
+        "id": 68,
+        "title": "Atomic Habits",
+        "author": "James Clear",
+        "genre": "Self-Help",
+        "price": 16.99,
+        "rating": 4.8
+    },
+    {
+        "id": 69,
+        "title": "Becoming",
+        "author": "Michelle Obama",
+        "genre": "Memoir",
+        "price": 17.99,
+        "rating": 4.9
+    },
+    {
+        "id": 70,
+        "title": "The Silent Patient",
+        "author": "Alex Michaelides",
+        "genre": "Psychological Thriller",
+        "price": 14.49,
+        "rating": 4.3
+    },
+    {
+        "id": 71,
+        "title": "The Seven Husbands of Evelyn Hugo",
+        "author": "Taylor Jenkins Reid",
+        "genre": "Historical Fiction",
+        "price": 13.49,
+        "rating": 4.6
+    },
+    {
+        "id": 72,
+        "title": "The Invisible Life of Addie LaRue",
+        "author": "V.E. Schwab",
+        "genre": "Fantasy",
+        "price": 15.99,
+        "rating": 4.5
+    },
+    {
+        "id": 73,
+        "title": "Little Fires Everywhere",
+        "author": "Celeste Ng",
+        "genre": "Contemporary Fiction",
+        "price": 12.99,
+        "rating": 4.4
+    },
+    {
+        "id": 74,
+        "title": "The Vanishing Half",
+        "author": "Brit Bennett",
+        "genre": "Literary Fiction",
+        "price": 14.99,
+        "rating": 4.5
+    },
+    {
+        "id": 75,
+        "title": "The Guest List",
+        "author": "Lucy Foley",
+        "genre": "Mystery",
+        "price": 13.99,
+        "rating": 4.2
     }
 ]

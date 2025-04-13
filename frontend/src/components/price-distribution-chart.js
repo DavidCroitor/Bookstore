@@ -7,7 +7,7 @@ import {
 import styles from '../styles/price-distribution-chart.module.css';
 
 const PriceDistributionChart = () => {
-    const { books, fetchFullStatistics } = useBooks();
+    const { allBooks, fetchFullStatistics } = useBooks();
     
     // Fetch statistics on component mount
     React.useEffect(() => {
@@ -15,12 +15,12 @@ const PriceDistributionChart = () => {
     }, [fetchFullStatistics]);
 
     const chartData = useMemo(() => {
-        if (!books || books.length === 0) {
+        if (!allBooks || allBooks.length === 0) {
             return [];
         }
 
         // 1. Get valid prices
-        const prices = books.map(book => book.price).filter(price => typeof price === 'number');
+        const prices = allBooks.map(book => book.price).filter(price => typeof price === 'number');
         if (prices.length === 0) {
              return [];
         }
@@ -28,6 +28,7 @@ const PriceDistributionChart = () => {
         // 2. Determine range and bins
         const maxPrice = Math.max(...prices);
         const binSize = 5; // Define the price range for each bar (e.g., $5)
+        
         // Ensure at least one bin even if maxPrice is small
         const numberOfBins = Math.max(1, Math.ceil(maxPrice / binSize));
 
@@ -55,7 +56,7 @@ const PriceDistributionChart = () => {
 
         // 5. Filter out bins with zero counts
         return bins.filter(bin => bin.count > 0);
-    }, [books]); // Re-calculate when books change
+    }, [allBooks]); // Re-calculate when allBooks change
 
     if (!chartData || chartData.length === 0) {
         return <div className={styles.noData}>No price distribution data available</div>;
@@ -63,7 +64,7 @@ const PriceDistributionChart = () => {
 
     return (
         <div className={styles.chartContainer}>
-            <h2>Book Price Distribution (Real-time)</h2>
+            <h2>Book Price Distribution</h2>
             <ResponsiveContainer width="100%" height={400}>
                 <BarChart
                     data={chartData}

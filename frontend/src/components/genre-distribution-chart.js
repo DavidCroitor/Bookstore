@@ -8,7 +8,7 @@ import styles from '../styles/genre-distribution-chart.module.css'; // Adjust pa
 
 
 const GenreDistributionChart = () => {
-    const { books, fetchFullStatistics } = useBooks();
+    const { allBooks, fetchFullStatistics } = useBooks();
     const [chartData, setChartData] = useState([]);
     
     // Fetch statistics on component mount
@@ -18,10 +18,10 @@ const GenreDistributionChart = () => {
     
     // Process books into chart data whenever the books array changes
     useEffect(() => {
-        if (!books || books.length === 0) return;
+        if (!allBooks || allBooks.length === 0) return;
         
         // Count books by genre
-        const genreCounts = books.reduce((acc, book) => {
+        const genreCounts = allBooks.reduce((acc, book) => {
             if (!book.genre) return acc;
             acc[book.genre] = (acc[book.genre] || 0) + 1;
             return acc;
@@ -34,7 +34,7 @@ const GenreDistributionChart = () => {
         }));
         
         setChartData(data);
-    }, [books]); // Re-process whenever books change
+    }, [allBooks]); // Re-process whenever allBooks change
     
     if (!chartData || chartData.length === 0) {
         return <div className={styles.noData}>No chart data available</div>;
@@ -42,7 +42,7 @@ const GenreDistributionChart = () => {
     
     return (
         <div className={styles.chartContainer}>
-            <h2>Books by Genre (Real-time)</h2>
+            <h2>Books by Genre</h2>
             <ResponsiveContainer width="100%" height={400}>
                 <BarChart
                     data={chartData}

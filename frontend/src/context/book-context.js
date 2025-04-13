@@ -75,6 +75,7 @@ export const BooksProvider = ({ children }) => {
         averagePrice: 0,
     });
     
+    const [allBooks, setAllBooks] = useState([]);
     const [isOnline, setIsOnline] = useState(typeof window !== 'undefined' ? navigator.onLine : true);
     const [isServerReachable, setIsServerReachable] = useState(true);
     const [actionQueue, setActionQueue] = useState(() => {
@@ -743,6 +744,10 @@ export const BooksProvider = ({ children }) => {
                                 method: 'DELETE'
                             });
                             
+                            console.log(`Processing DELETE operation for ${isLocalDeleteId ? 'local' : 'server'} ID: ${item.data.id}`);
+                            console.log('Response status:', response.status);
+
+
                             if (response.ok) {
                                 results.push({
                                     success: true,
@@ -799,7 +804,6 @@ export const BooksProvider = ({ children }) => {
             price: isNaN(parsedPrice) ? 0 : parsedPrice
         };
         
-        // Update the part in addBook function where you handle offline mode
         if (!isOnline || !isServerReachable) {
             setBooks(prevBooks => [...prevBooks, bookToAdd]);
         
@@ -842,8 +846,7 @@ export const BooksProvider = ({ children }) => {
             
             const addedBook = await response.json();
 
-            // Update local state after server confirmation
-            setBooks(prevBooks => [...prevBooks, addedBook]);
+           
             // Update cache
             const cachedBooks = storage.getItem(LS_BOOKS_CACHE_KEY) || [];
             storage.setItem(LS_BOOKS_CACHE_KEY, [...cachedBooks, addedBook]);
@@ -1007,13 +1010,15 @@ export const BooksProvider = ({ children }) => {
 
         // Handle offline mode or local books
         if (!isOnline || !isServerReachable || isLocalBook) {
+            // Update local state immediately only in offline mode
             updateLocalState();
             
-            // Only queue server books for sync (no need to sync deletion of local books)
-            if (!isLocalBook) {
+            // Only queue server books for sync
+            if (!isLocalBook && (!isOnline || !isServerReachable)) {
                 queueForSync();
             }
             
+            console.log(`Book with ID ${id} deleted locally (offline mode)`);
             return true;
         }
         
@@ -1023,21 +1028,21 @@ export const BooksProvider = ({ children }) => {
                 method: 'DELETE'
             });
             
+            console.log(`Server response for deletion of book with ID ${id}:`, response);
+
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
                 throw new Error(errorData.message || 'Failed to delete book');
             }
 
-            updateLocalState(); // Update local state after server confirmation
-    
+            
             return true;
         } catch (err) {
             setError(err.message || 'Failed to delete book');
             
             updateLocalState(); // Update local state immediately
             queueForSync(); // Queue the action for later sync
-            // Fall back to offline mode
-            setBooks(prevBooks => prevBooks.filter(book => book.id !== id));
+
             
             // Update connectivity status if needed
             if (err.message.includes('Failed to fetch') || err.name === 'AbortError') {
@@ -1060,16 +1065,46 @@ export const BooksProvider = ({ children }) => {
         ws.onmessage = (event) => {
             const message = JSON.parse(event.data);
             
-            if (message.type === 'new_book') {
-                console.log('Received new book:', message.data);
-                // Add the new book to the books list
-                setBooks(prevBooks => [...prevBooks, message.data]);
-                
-                // If we're offline, we'll queue this book to be synced later
-                if (!isOnline || !isServerReachable) {
-                    console.log('Server sent update while client is offline - interesting case!');
-                    // Handle this edge case if needed
-                }
+            switch (message.type) {
+                case 'new_book':
+                    console.log('Received new book:', message.data);
+                    setBooks(prevBooks => [...prevBooks, message.data]);
+                    break;
+                    
+                case 'update_book':
+                    console.log('Received updated book:', message.data);
+                    setBooks(prevBooks => 
+                        prevBooks.map(book => 
+                            book.id === message.data.id ? message.data : book
+                        )
+                    );
+
+                    // Update cache
+                    const updateBookCache = storage.getItem(LS_BOOKS_CACHE_KEY) || [];
+                    storage.setItem(LS_BOOKS_CACHE_KEY,
+                        updateBookCache.map(book => 
+                            book.id === message.data.id ? message.data : book
+                        )
+                    );
+
+                    break;
+                    
+                case 'delete_book':
+                    console.log('Received deleted book ID:', message.data.id);
+
+                    setBooks(prevBooks => 
+                        prevBooks.filter(book => book.id !== message.data.id)
+                    );
+
+                    // Update cache
+                    const deleteBookCache = storage.getItem(LS_BOOKS_CACHE_KEY) || [];
+                    storage.setItem(LS_BOOKS_CACHE_KEY, 
+                        deleteBookCache.filter(book => book.id !== message.data.id)
+                    );
+
+                    break;
+                default:
+                    console.log('Received unknown message type:', message);
             }
         };
         
@@ -1101,16 +1136,29 @@ export const BooksProvider = ({ children }) => {
         }
         
         try {
-            const url = `${API_URL}/books/stats`;
-            const response = await fetch(url);
+            // First fetch full statistics
+            const statsUrl = `${API_URL}/books/stats`;
+            const statsResponse = await fetch(statsUrl);
             
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData?.message || `HTTP error! Status: ${response.status}`);
+            if (!statsResponse.ok) {
+                const errorData = await statsResponse.json().catch(() => ({}));
+                throw new Error(errorData?.message || `HTTP error! Status: ${statsResponse.status}`);
             }
             
-            const statsData = await response.json();
+            const statsData = await statsResponse.json();
             setStats(statsData);
+            
+            // Then fetch ALL books without pagination for chart data
+            const allBooksUrl = `${API_URL}/books?limit=1000`; // Set a high limit to get all books
+            const booksResponse = await fetch(allBooksUrl);
+            
+            if (!booksResponse.ok) {
+                const errorData = await booksResponse.json().catch(() => ({}));
+                throw new Error(errorData?.message || `HTTP error! Status: ${booksResponse.status}`);
+            }
+            
+            const booksData = await booksResponse.json();
+            setAllBooks(booksData.books || []);
         } catch (err) {
             console.error("Error fetching full statistics:", err);
             // Don't update error state to avoid interfering with main book fetching
@@ -1127,6 +1175,7 @@ return (
     <BooksContext.Provider
         value={{
             books,
+            allBooks, // Include full dataset for charts
             loadingInitial,
             loadingMore,
             error,

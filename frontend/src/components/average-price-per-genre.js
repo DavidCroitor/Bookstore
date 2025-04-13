@@ -7,7 +7,7 @@ import {
 import styles from '../styles/average-price-per-genre.module.css';
 
 const AveragePricePerGenreChart = () => {
-    const { books, fetchFullStatistics } = useBooks();
+    const { allBooks, fetchFullStatistics } = useBooks();
     
     // Fetch statistics on component mount
     useEffect(() => {
@@ -15,12 +15,12 @@ const AveragePricePerGenreChart = () => {
     }, [fetchFullStatistics]);
 
     const chartData = useMemo(() => {
-        if (!books || books.length === 0) {
+        if (!allBooks || allBooks.length === 0) {
             return [];
         }
 
         // Calculate total price and count per genre
-        const genrePrices = books.reduce((acc, book) => {
+        const genrePrices = allBooks.reduce((acc, book) => {
             const genre = book.genre || 'Unknown';
             if (!acc[genre]) {
                 // Initialize if genre not seen before
@@ -40,7 +40,7 @@ const AveragePricePerGenreChart = () => {
                 ? parseFloat((data.total / data.count).toFixed(2)) 
                 : 0
         }));
-    }, [books]); // Re-calculate when books change
+    }, [allBooks]); // Re-calculate when allBooks change
 
     if (!chartData || chartData.length === 0) {
         return <div className={styles.noData}>No average price data available</div>;
@@ -48,7 +48,7 @@ const AveragePricePerGenreChart = () => {
 
     return (
         <div className={styles.chartContainer}>
-            <h2>Average Book Price per Genre (Real-time)</h2>
+            <h2>Average Book Price per Genre</h2>
             <ResponsiveContainer width="100%" height={400}>
                 <BarChart
                     data={chartData}

@@ -1,38 +1,49 @@
 const WebSocket = require('ws');
 
-class WebSocketService {
-    constructor() {
-        this.wss = null;
-        this.clients = new Set();
-    }
+// Initialize WebSocket server
+let wss;
+const clients = new Set();
 
-    initialize(server) {
-        this.wss = new WebSocket.Server({ server });
+const initialize = (server) => {
+    // Create WebSocket server attached to the existing HTTP server
+    wss = new WebSocket.Server({ server });
+    
+    wss.on('connection', (ws) => {
+        console.log('Client connected');
+        clients.add(ws);
         
-        this.wss.on('connection', (ws) => {
-            console.log('Client connected to WebSocket');
-            this.clients.add(ws);
-            
-            ws.on('close', () => {
-                console.log('Client disconnected from WebSocket');
-                this.clients.delete(ws);
-            });
-            
-            // Send initial message
-            ws.send(JSON.stringify({ type: 'connection', message: 'Connected to BookStore WebSocket server' }));
+        ws.on('close', () => {
+            console.log('Client disconnected');
+            clients.delete(ws);
         });
-    }
-
-    broadcast(data) {
-        // Broadcast to all connected clients
-        this.clients.forEach(client => {
-            if (client.readyState === WebSocket.OPEN) {
-                client.send(JSON.stringify(data));
-            }
+        
+        ws.on('message', (message) => {
+            console.log('Received message:', message);
+            // Handle client messages if needed
         });
-    }
-}
+    });
+    
+    console.log('WebSocket server initialized');
+    return wss;
+};
 
-// Singleton instance
-const websocketService = new WebSocketService();
-module.exports = websocketService;
+// Function to broadcast to all clients
+const broadcast = (data) => {
+    if (!wss) {
+        console.warn('WebSocket server not initialized');
+        return;
+    }
+    
+    const message = JSON.stringify(data);
+    
+    clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(message);
+        }
+    });
+};
+
+module.exports = {
+    initialize,
+    broadcast
+};

@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react';
-import { useBooks } from '@/context/book-context';
+import { useBooks } from '@/context/BooksContext';
 import style from '@/styles/sort-controls.module.css';
 
 // Debounce delay in milliseconds

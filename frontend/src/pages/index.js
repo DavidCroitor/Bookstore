@@ -5,7 +5,7 @@ import styles from '../styles/home.module.css';
 import Image from 'next/image';
 import BellIcon from '../../assets/bell.png';
 import ProfileIcon from '../../assets/profile.png';
-import { useBooks } from '@/context/book-context';
+import { useBooks } from '@/context/BooksContext';
 import SortControls from '@/components/sort-controls';
 
 const SEARCH_DEBOUNCE_DELAY = 300;

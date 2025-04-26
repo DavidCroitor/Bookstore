@@ -1,6 +1,6 @@
 import '../styles/globals.css';
 import Sidebar from '../components/sidebar';
-import { BooksProvider } from '../context/book-context';
+import { BooksProvider } from '../context/BooksContext';
 import ConnectionStatus from '@/components/connection-status';
 
 function MyApp({ Component, pageProps }) {

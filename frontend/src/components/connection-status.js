@@ -1,9 +1,14 @@
 import React from 'react';
-import { useBooks } from '@/context/book-context';
+import { useBooks } from '@/context/BooksContext';
 import styles from '../styles/connection-status.module.css';
 
 const ConnectionStatus = () => {
-    const { isOnline, isServerReachable, isSyncing, actionQueue } = useBooks();
+    const { 
+        isOnline, 
+        isServerReachable, 
+        isSyncing, 
+        actionQueueCount: actionQueue, 
+    } = useBooks();
     
     const [isMounted, setIsMounted] = React.useState(false);
 

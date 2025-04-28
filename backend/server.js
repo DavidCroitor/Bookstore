@@ -19,17 +19,11 @@ if (process.env.NODE_ENV !== 'test') {
         websocketService.initialize(server);
         console.log('WebSocket server initialized');
         
-        // Start the book generator
-        // bookGenerator.start(5000); // Generate a new book every 15 seconds
     });
 }
 
-// Graceful shutdown (optional but good practice)
 const shutdown = () => {
     console.log('Shutting down server...');
-    
-    // Stop the book generator
-    // bookGenerator.stop();
     
     server.close(() => {
         console.log('Server closed.');

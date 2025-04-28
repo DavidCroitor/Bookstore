@@ -1,12 +1,8 @@
 import React from 'react';
-import PropTypes from 'prop-types'; // Import PropTypes for prop validation
-import styles from '../styles/pagination-controls.module.css'; // We'll create this CSS file next
+import PropTypes from 'prop-types'; 
+import styles from '../styles/pagination-controls.module.css';
 
 function PaginationControls({ currentPage, totalPages, onPreviousPage, onNextPage }) {
-    // No need to render if there's only one page or less.
-    // The parent component (Home) already handles this, but it's good practice
-    // for the component itself to be robust. However, we'll keep the check in Home
-    // to avoid rendering an empty div.
 
     return (
         <div className={styles.paginationContainer}>
@@ -14,12 +10,12 @@ function PaginationControls({ currentPage, totalPages, onPreviousPage, onNextPag
                 onClick={onPreviousPage}
                 disabled={currentPage === 1}
                 className={styles.paginationButton}
-                aria-label="Go to previous page" // Accessibility improvement
+                aria-label="Go to previous page" 
             >
                 « Previous
             </button>
 
-            <span className={styles.paginationInfo} aria-live="polite"> {/* Announce changes */}
+            <span className={styles.paginationInfo} aria-live="polite">
                 Page {currentPage} of {totalPages}
             </span>
 
@@ -27,7 +23,7 @@ function PaginationControls({ currentPage, totalPages, onPreviousPage, onNextPag
                 onClick={onNextPage}
                 disabled={currentPage === totalPages}
                 className={styles.paginationButton}
-                aria-label="Go to next page" // Accessibility improvement
+                aria-label="Go to next page" 
             >
                 Next »
             </button>
@@ -35,7 +31,6 @@ function PaginationControls({ currentPage, totalPages, onPreviousPage, onNextPag
     );
 }
 
-// Define prop types for type checking and documentation
 PaginationControls.propTypes = {
     currentPage: PropTypes.number.isRequired,
     totalPages: PropTypes.number.isRequired,

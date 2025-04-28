@@ -2,7 +2,7 @@ import { useDebugValue, useState } from 'react';
 import styles from '../styles/book-form.module.css';
 
 export default function BookForm({ onAddBook, sumbitButtonLabel }) {
-    const [form, setForm] = useState({ title: '', author: '', genre: '', price:''});
+    const [form, setForm] = useState({ title: '', author: '', genre: '', price:'', rating: '' });
     const [error, setError] = useState({});
 
 
@@ -44,6 +44,13 @@ export default function BookForm({ onAddBook, sumbitButtonLabel }) {
                 return false;
             }
         }
+        if (form.rating) {
+            const rating = parseFloat(form.rating);
+            if (isNaN(rating) || rating < 0 || rating > 5) {
+                alert('Rating must be a number between 0 and 5.');
+                return false;
+            }
+        }
 
         return true;
     };
@@ -53,8 +60,7 @@ export default function BookForm({ onAddBook, sumbitButtonLabel }) {
         e.preventDefault();
 
         if (validateForm()) {
-            onAddBook(form);  // Handle adding book
-            
+            onAddBook(form);
         }
     };
 
@@ -87,9 +93,17 @@ export default function BookForm({ onAddBook, sumbitButtonLabel }) {
                 />
             <input
                 name="price"
-                vale={form.price}
+                value={form.price}
                 onChange={handleChange}
                 placeholder="price"
+                className={styles.input}
+                required
+            />
+            <input
+                name="rating"
+                value={form.rating}
+                onChange={handleChange}
+                placeholder="rating"
                 className={styles.input}
                 required
             />

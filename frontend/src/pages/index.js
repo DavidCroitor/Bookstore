@@ -7,71 +7,48 @@ import BellIcon from '../../assets/bell.png';
 import ProfileIcon from '../../assets/profile.png';
 import { useBooks } from '@/context/BooksContext';
 import SortControls from '@/components/sort-controls';
-
-const SEARCH_DEBOUNCE_DELAY = 300;
-const SCROLL_THRESHOLD = 350; // Pixels from bottom to trigger fetch
+import PaginationControls from '@/components/pagination-controls';
 
 export default function Home() {
     // Get data and functions from context for endless scroll
     const {
-        loadingInitial, // Use this for main loading indicator
-        loadingMore,    // Use this for loading more books indicator
+        books,
+        loadingInitial, 
+        loadingMore,   
         error,
-        fetchNextPage, // Function to load more
-        hasMorePages,  // To know when to stop fetching
         filterBooks,
-        currentFilter
+        currentFilter,
+        currentPage,
+        totalPages,
+        currentSortBy,
+        currentOrder,
+        fetchBooks
      } = useBooks();
     const router = useRouter();
 
-
-    const scrollContainerRef = useRef(null);
-
     // State for search input
     const [searchTerm, setSearchTerm] = useState(currentFilter || '');
-    // Ref for debounce timer (optional)
-    // const debounceTimeoutRef = useRef(null);
 
-     // Effect to sync search term (optional)
+     // Effect to sync search term
      useEffect(() => {
         setSearchTerm(currentFilter || '');
     }, [currentFilter]);
-
-    // Remove client-side pagination state (currentPage, useMemo, effect, handlers)
-
     
-
-    // --- Scroll Event Listener ---
-    const handleScroll = useCallback(() => {
-        const container = scrollContainerRef.current;
-        if (!container) return; // Exit if ref not set yet
-    
-        if (!hasMorePages || loadingInitial || loadingMore) return;
-    
-        const { scrollTop, scrollHeight, clientHeight } = container; // Use container properties
-    
-        
-        if (scrollTop + clientHeight >= scrollHeight - SCROLL_THRESHOLD) {
-            fetchNextPage();
+    // Page navigation handlers
+    const handlePreviousPage = useCallback(() => {
+        if (currentPage > 1) {
+            console.log("Fetching previous page:", currentPage - 1);
+            fetchBooks(currentPage - 1, currentSortBy, currentOrder, currentFilter);
         }
-    }, [hasMorePages, loadingInitial, loadingMore, fetchNextPage]); // Dependencies for the handler
+    }, [currentPage, totalPages, currentSortBy, currentOrder, currentFilter, fetchBooks]);
 
-    useEffect(() => {
-        const container = scrollContainerRef.current; // Get the DOM element
+    const handleNextPage = useCallback(() => {
+        if (currentPage < totalPages) {
+            console.log("Fetching next page:", currentPage + 1);
+            fetchBooks(currentPage + 1, currentSortBy, currentOrder, currentFilter);
+        }
+    }, [currentPage, totalPages, currentSortBy, currentOrder, currentFilter, fetchBooks]);
 
-
-        if (container) { // Make sure it exists before adding listener
-            container.addEventListener('scroll', handleScroll);
-
-            // Return cleanup function
-            return () => {
-                const currentContainer = scrollContainerRef.current; // Re-read ref here maybe? Or rely on closure? Closure should be fine.
-                if (container) { 
-                   container.removeEventListener('scroll', handleScroll);
-                }
-            };
-        } 
-    }, [handleScroll]); // Dependency is handleScroll
 
     // --- Other Handlers ---
     const handleEditBook = (id) => {
@@ -81,14 +58,12 @@ export default function Home() {
     const handleSearchChange = (e) => {
         const newTerm = e.target.value;
         setSearchTerm(newTerm);
-        // Apply filter immediately (resets to page 1 in context)
         filterBooks(newTerm);
-        // Or use debounce
     }
 
+
     return (
-        // Optional: Add ref to mainContent if scrolling is container-based
-        <div className={styles.mainContent} ref={scrollContainerRef}>
+        <div className={styles.mainContent}>
             <header className={styles.header}>
                 <input
                     className={styles.searchBar}
@@ -110,6 +85,13 @@ export default function Home() {
 
             <BookList onBookClick={handleEditBook} />
 
+            {!loadingInitial &&  totalPages > 1 && (
+                <PaginationControls
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPreviousPage={handlePreviousPage}
+                    onNextPage={handleNextPage} />
+            )}
             
 
         </div>

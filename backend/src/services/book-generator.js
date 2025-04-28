@@ -27,7 +27,7 @@ class BookGenerator {
     }
 
     // Start generating books periodically
-    start(intervalMs = 10000) { // Default: generate a book every 10 seconds
+    start(intervalMs = 10000) {
         if (this.isRunning) return;
         
         this.isRunning = true;
@@ -38,7 +38,6 @@ class BookGenerator {
                 
                 console.log('Generated new book:', savedBook);
                 
-                // Broadcast the new book to all connected clients
                 websocketService.broadcast({
                     type: 'new_book',
                     data: savedBook
@@ -54,19 +53,15 @@ class BookGenerator {
     // Stop generating books
     stop() {
         if (!this.isRunning) return;
-        
         clearInterval(this.interval);
         this.isRunning = false;
         console.log('Book generator stopped.');
     }
 }
 
-// Use the imported BookService directly instead of trying to instantiate it
 const bookGenerator = new BookGenerator(BookService);
 
-// Add signal handler for Ctrl+C (SIGINT)
 process.on('SIGINT', () => {
-    console.log('\nReceived SIGINT (Ctrl+C). Shutting down gracefully...');
     bookGenerator.stop();
     process.exit(0);
 });

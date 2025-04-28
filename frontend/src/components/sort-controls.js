@@ -9,25 +9,19 @@ const DEBOUNCE_DELAY = 300;
 export default function SortControls() {
     const [isSortOpen, setIsSortOpen] = useState(false);
 
-    // State for Filter Input
     const [filterTerm, setFilterTerm] = useState('');
 
-    // Get functions from context
-    const { sortBooks, filterBooks } = useBooks(); // Added fetchBooks for clearing filter
+    const { sortBooks, filterBooks } = useBooks(); 
 
-    // Handler for the filter input change
     const handleFilterChange = (e) => {
         const newTerm = e.target.value;
-        setFilterTerm(newTerm); // Update the local state for the input field
-        console.log("Filtering immediately for:", newTerm); // Log for debugging
-        filterBooks(newTerm);   // Call the context function IMMEDIATELY with the new value
+        setFilterTerm(newTerm); 
+        console.log("Filtering immediately for:", newTerm);
+        filterBooks(newTerm);   
     };
 
-    // Optional: Function to clear the filter explicitly
     const clearFilter = () => {
         setFilterTerm('');
-        // We could call fetchBooks() directly here, but the useEffect
-        // will trigger filterBooks('') anyway when filterTerm changes.
     };
 
     // --- Sort Logic ---
@@ -36,17 +30,15 @@ export default function SortControls() {
     };
 
     const handleSort = (sortBy, order) => {
-        sortBooks(sortBy, order); // Call context function
-        setIsSortOpen(false); // Close dropdown after selection
+        sortBooks(sortBy, order);
+        setIsSortOpen(false);
     };
         
     
 
     return (
         <div >
-            {/* Sort Dropdown Section */}
             <div >
-                {/* Dropdown button */}
                 <button
                     type="button"
                     onClick={toggleSortDropdown}
@@ -55,7 +47,6 @@ export default function SortControls() {
                     Sort by
                 </button>
 
-                {/* Dropdown menu */}
                 {isSortOpen && (
                     <div
                         role="menu"

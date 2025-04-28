@@ -11,6 +11,7 @@ backend/config/applicationhost.config
 backend/FileContentIndex/
 backend/v17/
 backend/*.log
+backend/.env*
 
 # --- Frontend-specific rules ---
 frontend/node_modules/

@@ -43,6 +43,13 @@ export default function BookEditForm({ book, onEditBook, onCancel, onDelete, sub
                 return false;
             }
         }
+        if (form.rating) {
+            const rating = parseFloat(form.rating);
+            if (isNaN(rating) || rating < 0 || rating > 5) {
+                alert('Rating must be a number between 0 and 5.');
+                return false;
+            }
+        }
 
         return true;
     };
@@ -58,8 +65,7 @@ export default function BookEditForm({ book, onEditBook, onCancel, onDelete, sub
         }
 
         if (validateForm()) {
-            onEditBook(form);  // Handle adding book
-            
+            onEditBook(form); 
         }
     };
 
@@ -96,6 +102,14 @@ export default function BookEditForm({ book, onEditBook, onCancel, onDelete, sub
                     value={form.price}
                     onChange={handleChange}
                     placeholder="Price"
+                    className={styles.input}
+                    required
+                />
+                <input
+                    name="rating"
+                    value={form.rating}
+                    onChange={handleChange}
+                    placeholder="Rating"
                     className={styles.input}
                     required
                 />

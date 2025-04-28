@@ -1,101 +1,103 @@
-const fs = require('fs');
-const path = require('path');
+const Book = require('../models/book.model');
+const { connectToDatabase } = require('../utils/mongodb');
 
-const dataPath = path.join(__dirname, '../../data/books.json');
-let books = [];
-let nextId = 1;
-let initialBooksData = []; // Store the initially loaded data
+connectToDatabase().catch(console.error);
 
-const loadData = () => {
-    try {
-        const rawData = fs.readFileSync(dataPath, 'utf8');
-        // Store the original data for resetting
-        initialBooksData = JSON.parse(rawData);
-        // Use a deep copy for the working array
-        books = JSON.parse(JSON.stringify(initialBooksData));
-        if (books.length > 0) {
-            nextId = Math.max(...books.map(b => b.id)) + 1;
-        } else {
-            nextId = 1;
-        }
-        console.log(`Loaded ${books.length} books from ${dataPath}. Next ID: ${nextId}`);
-    } catch (error) {
-        console.error("Error reading or parsing books.json:", error);
-        initialBooksData = [];
-        books = [];
-        nextId = 1;
-    }
-};
+const transformBook = (book) => {
+    if (!book) return null;
 
-// Load data when the module is first required
-loadData();
-
-// ... (keep existing saveData, findAll, findById, create, update, remove functions)
-// Note: The simple saveData function might cause issues if tests run in parallel
-// In a real DB scenario, transactions or test-specific databases are used.
-
-const findAll = () => {
-    return [...books];
-};
-
-const findById = (id) => {
-    const numericId = parseInt(id, 10);
-    return books.find(book => book.id === numericId);
-};
-
-const create = (bookData) => {
-    const newBook = {
+    const {_id, ...bookData} = book.toObject ? book.toObject() : book;
+    return {
+        id: _id,
         ...bookData,
-        id: nextId++,
-        price: parseFloat(bookData.price)
     };
-    books.push(newBook);
-    // saveData(); // Maybe skip saving during tests unless persistence is explicitly tested
-    return newBook;
+}
+
+const findAll = async() => {
+    try {
+        const books = await Book.find({});
+        return books.map(transformBook);
+    } catch (error) {
+        console.error('Error fetching books:', error);
+        throw error;
+    }
+}
+
+const findById = async(id) => {
+    try {
+        const book = await Book.findById(id);
+        return transformBook(book);
+    } catch (error) {
+        console.error('Error fetching book by ID:', error);
+        throw error;
+    }
+}
+
+const create = async(bookData) => {
+    try {
+        const book = new Book({
+            ...bookData,
+            price: parseFloat(bookData.price)
+        });
+        await book.save();
+        return transformBook(book);
+    } catch (error) {
+        console.error('Error creating book:', error);
+        throw error;
+    }
+}
+
+const update = async(id, bookData) => {
+    try {
+        if(bookData.price !== undefined) {
+            bookData.price = parseFloat(bookData.price); 
+        }
+
+        const updatedBook = await Book.findByIdAndUpdate(id, bookData, { new: true, runValidators: true });
+
+        return transformBook(updatedBook);
+    }
+    catch (error) {
+        console.error('Error updating book:', error);
+        throw error;
+    }
 };
 
-const update = (id, updateData) => {
-    const numericId = parseInt(id, 10);
-    const bookIndex = books.findIndex(book => book.id === numericId);
-    if (bookIndex === -1) {
-        return null;
+const remove = async(id) => {  
+    try {
+        const result = await Book.findByIdAndDelete(id);
+        return result !== null;
     }
-    const originalBook = books[bookIndex];
-    const updatedBook = {
-        ...originalBook,
-        ...updateData,
-        id: originalBook.id,
-        price: updateData.price !== undefined ? parseFloat(updateData.price) : originalBook.price
-    };
-    books[bookIndex] = updatedBook;
-    // saveData(); // Skip saving?
-    return updatedBook;
-};
+    catch (error) {
+        console.error('Error deleting book:', error);
+        throw error;
+    }
+}
 
-const remove = (id) => {
-    const numericId = parseInt(id, 10);
-    const bookIndex = books.findIndex(book => book.id === numericId);
-    if (bookIndex === -1) {
-        return false;
-    }
-    books.splice(bookIndex, 1);
-    // saveData(); // Skip saving?
-    return true;
-};
 
-// --- Test Only Reset Function ---
-// Resets the in-memory 'books' array to the initially loaded state
-const resetDataForTesting = () => {
-    console.log('Resetting repository data for test...');
-    // Use deep copy to avoid modifying initialBooksData
-    books = JSON.parse(JSON.stringify(initialBooksData));
-    if (books.length > 0) {
-        nextId = Math.max(...books.map(b => b.id)) + 1;
-    } else {
-        nextId = 1;
+
+const resetDataForTesting = async () => {
+    if (process.env.NODE_ENV !== 'test') {
+      console.warn('Attempted to reset database outside of test environment');
+      return;
     }
-    console.log(`Repository reset. ${books.length} books loaded. Next ID: ${nextId}`);
-};
+    
+    try {
+      console.log('Resetting MongoDB data for testing...');
+      await Book.deleteMany({});
+      
+      // Optionally seed with initial test data
+      if (process.env.SEED_TEST_DATA === 'true') {
+        const seedData = require('../../data/test-seed-data.json');
+        await Book.insertMany(seedData);
+      }
+      
+      console.log('Test data reset complete');
+    } catch (error) {
+      console.error('Error resetting test data:', error);
+      throw error;
+    }
+};   
 
 module.exports = {
     findAll,
@@ -103,6 +105,5 @@ module.exports = {
     create,
     update,
     remove,
-    // Conditionally export the reset function only during tests
-    _resetDataForTesting: process.env.NODE_ENV === 'test' ? resetDataForTesting : undefined,
+    _resetDataForTesting : process.env.NODE_ENV === 'test' ? resetDataForTesting : undefined
 };

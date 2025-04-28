@@ -1,25 +1,23 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { storage } from '../storage';
-import * as bookApi from '../bookApi'; // Import all API functions
+import * as bookApi from '../bookApi'; 
 import { LS_ACTION_QUEUE_KEY } from '../constants';
 
 export const useOfflineSync = (isOnline, isServerReachable, onSyncComplete) => {
     const [actionQueue, setActionQueue] = useState(() => storage.getItem(LS_ACTION_QUEUE_KEY) || []);
     const [isSyncing, setIsSyncing] = useState(false);
-    const isSyncingRef = useRef(isSyncing); // Ref to track sync state in async callbacks
-
+    const isSyncingRef = useRef(isSyncing); 
+    
     useEffect(() => {
         isSyncingRef.current = isSyncing;
     }, [isSyncing]);
 
-    // Persist queue to localStorage whenever it changes
     useEffect(() => {
         storage.setItem(LS_ACTION_QUEUE_KEY, actionQueue);
     }, [actionQueue]);
 
     const queueAction = useCallback((action, data) => {
         const timestamp = new Date().toISOString();
-        // Ensure data has an ID, even if it's local
         const idForAction = data.id || `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         const actionId = `${timestamp}-${Math.random().toString(36).substr(2, 9)}`;
         const newItem = { 
@@ -39,7 +37,7 @@ export const useOfflineSync = (isOnline, isServerReachable, onSyncComplete) => {
                 success: true, 
                 processedCount: 0, 
                 idMapping: {} 
-            }; // Nothing to do or already syncing
+            };
         }
 
         setIsSyncing(true);
@@ -51,7 +49,6 @@ export const useOfflineSync = (isOnline, isServerReachable, onSyncComplete) => {
         const idMapping = {}; // Map local IDs to server IDs
 
         for (const item of currentQueue) {
-            // Skip if item structure is invalid
             if (!item || !item.action || !item.data || !item.id) {
                 console.error('Skipping invalid action item:', item);
                 results.push({ 
@@ -99,7 +96,6 @@ export const useOfflineSync = (isOnline, isServerReachable, onSyncComplete) => {
                         }
                         break;
                     case 'delete':
-                         // Cannot delete a purely local item on the server
                          if (isLocalId) {
                             const serverIdMapped = idMapping[originalId];
                             if (serverIdMapped) {
@@ -132,8 +128,10 @@ export const useOfflineSync = (isOnline, isServerReachable, onSyncComplete) => {
                     item, 
                     error: error.message 
                 });
+                //Remove item from queue if it fails
+                setActionQueue(prevQueue => prevQueue.filter(qItem => qItem.id !== item.id));
                  // Decide if you want to stop sync on first error or continue
-                 // break; // Uncomment to stop on first error
+                break; // Uncomment to stop on first error
             }
         }
 

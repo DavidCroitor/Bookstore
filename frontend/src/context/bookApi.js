@@ -12,18 +12,16 @@ const handleFetchError = (error) => {
     if (error.name === 'AbortError') {
         throw new Error('Request timed out.');
     }
-    // Re-throw network errors or specific API errors
-    throw error; // Re-throw the original error or a more specific one
+    throw error; 
 };
 
 
 export const checkServerStatus = async () => {
     try {
-        // Adding timestamp to prevent caching is good practice
         const response = await fetch(`${API_BASE_URL}/books?limit=1&_=${Date.now()}`, {
             method: 'HEAD',
             headers: { 'Cache-Control': 'no-cache' },
-            signal: AbortSignal.timeout(5000) // Use constant
+            signal: AbortSignal.timeout(5000)
         });
         return response.ok;
     } catch (error) {
@@ -52,7 +50,6 @@ export const fetchBooksAPI = async ({ page, limit, sortBy, order, filter }) => {
 };
 
 export const addBookAPI = async (bookData) => {
-     // Remove temp ID if present before sending
     const { id, ...dataToSend } = bookData;
     try {
         const response = await fetch(`${API_BASE_URL}/books`, {
@@ -67,11 +64,10 @@ export const addBookAPI = async (bookData) => {
 };
 
 export const updateBookAPI = async (bookId, bookData) => {
-     // Remove ID from payload if present
     const { id, ...dataToSend } = bookData;
     try {
         const response = await fetch(`${API_BASE_URL}/books/${bookId}`, {
-            method: 'PATCH', // Or PUT depending on your API
+            method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(dataToSend)
         });
@@ -86,12 +82,11 @@ export const deleteBookAPI = async (bookId) => {
         const response = await fetch(`${API_BASE_URL}/books/${bookId}`, {
             method: 'DELETE'
         });
-        // Delete might return 204 No Content, handle appropriately
         if (!response.ok && response.status !== 204) {
-             const errorData = await response.json().catch(() => ({ message: `HTTP error! Status: ${response.status}` }));
-             throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
+            const errorData = await response.json().catch(() => ({ message: `HTTP error! Status: ${response.status}` }));
+            throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
         }
-        return { success: true, id: bookId }; // Or just return true/void
+        return { success: true, id: bookId };
     } catch (error) {
         handleFetchError(error);
     }
@@ -108,7 +103,6 @@ export const fetchStatsAPI = async () => {
 
 export const fetchAllBooksAPI = async () => {
      try {
-        // Adjust limit as needed or implement proper pagination if "all" is too large
         const response = await fetch(`${API_BASE_URL}/books?limit=1000`);
         return await handleResponse(response);
     } catch (error) {

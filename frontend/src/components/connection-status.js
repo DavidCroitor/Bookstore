@@ -34,7 +34,7 @@ const ConnectionStatus = () => {
                 </div>
             );
         }
-        return null; // Don't show anything if everything is normal
+        return null;
     }
 
     return (

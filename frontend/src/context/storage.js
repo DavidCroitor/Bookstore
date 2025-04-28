@@ -1,5 +1,3 @@
-// Your existing storage wrapper object
-
 import {
     LS_BOOKS_CACHE_KEY,
     LS_ACTION_QUEUE_KEY,

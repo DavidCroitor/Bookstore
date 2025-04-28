@@ -1,11 +1,9 @@
 const WebSocket = require('ws');
 
-// Initialize WebSocket server
 let wss;
 const clients = new Set();
 
 const initialize = (server) => {
-    // Create WebSocket server attached to the existing HTTP server
     wss = new WebSocket.Server({ server });
     
     wss.on('connection', (ws) => {
@@ -19,7 +17,6 @@ const initialize = (server) => {
         
         ws.on('message', (message) => {
             console.log('Received message:', message);
-            // Handle client messages if needed
         });
     });
     
@@ -27,7 +24,6 @@ const initialize = (server) => {
     return wss;
 };
 
-// Function to broadcast to all clients
 const broadcast = (data) => {
     if (!wss) {
         console.warn('WebSocket server not initialized');

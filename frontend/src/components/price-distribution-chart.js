@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useBooks } from '../context/book-context';
+import { useBooks } from '../context/BooksContext';
 import { 
     BarChart, Bar, XAxis, YAxis, CartesianGrid, 
     Tooltip, Legend, ResponsiveContainer 
@@ -9,7 +9,6 @@ import styles from '../styles/price-distribution-chart.module.css';
 const PriceDistributionChart = () => {
     const { allBooks, fetchFullStatistics } = useBooks();
     
-    // Fetch statistics on component mount
     React.useEffect(() => {
         fetchFullStatistics();
     }, [fetchFullStatistics]);
@@ -27,7 +26,7 @@ const PriceDistributionChart = () => {
 
         // 2. Determine range and bins
         const maxPrice = Math.max(...prices);
-        const binSize = 5; // Define the price range for each bar (e.g., $5)
+        const binSize = 5;
         
         // Ensure at least one bin even if maxPrice is small
         const numberOfBins = Math.max(1, Math.ceil(maxPrice / binSize));
@@ -45,9 +44,7 @@ const PriceDistributionChart = () => {
 
         // 4. Fill bins with counts
         prices.forEach(price => {
-            // Determine the correct bin index for the price
             let binIndex = Math.floor(price / binSize);
-            // Handle edge cases
             binIndex = Math.min(binIndex, numberOfBins - 1);
             binIndex = Math.max(0, binIndex);
             
@@ -56,8 +53,8 @@ const PriceDistributionChart = () => {
 
         // 5. Filter out bins with zero counts
         return bins.filter(bin => bin.count > 0);
-    }, [allBooks]); // Re-calculate when allBooks change
-
+    }, [allBooks]);
+    
     if (!chartData || chartData.length === 0) {
         return <div className={styles.noData}>No price distribution data available</div>;
     }

@@ -29,7 +29,6 @@ export default function EditBookPage() {
 
     useEffect(() => {
         if (id && books.length > 0) {
-            // Find book by ID, handling both numeric IDs and string IDs (for local books)
             const selectedBook = books.find((b) => {
                 if (typeof b.id === 'string' && typeof id === 'string') {
                     return b.id === id;
@@ -46,13 +45,12 @@ export default function EditBookPage() {
             await updateBook(updatedBook);
             
             if (!isOnline || !isServerReachable) {
-                // Show feedback and navigate after a short delay
                 setOfflineMessage('Changes saved locally and will sync when connection is restored.');
                 setTimeout(() => {
                     router.push('/');
-                }, 1500);
+                }, 1000);
             } else {
-                router.push('/'); // Redirect immediately when online
+                router.push('/'); 
             }
         } catch (error) {
             console.error('Error updating book:', error);
@@ -65,13 +63,12 @@ export default function EditBookPage() {
             await deleteBook(book.id);
             
             if (!isOnline || !isServerReachable) {
-                // Show feedback and navigate after a short delay
                 setOfflineMessage('Delete operation saved locally and will sync when connection is restored.');
                 setTimeout(() => {
                     router.push('/');
-                }, 1500);
+                }, 1000);
             } else {
-                router.push('/'); // Redirect immediately when online
+                router.push('/'); 
             }
         } catch (error) {
             console.error('Error deleting book:', error);

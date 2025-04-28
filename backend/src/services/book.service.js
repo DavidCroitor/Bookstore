@@ -6,8 +6,8 @@ const safeParseFloat = (value) => {
     return isNaN(num) ? 0 : num; // Default to 0 if not a valid number
 };
 
-const getAllBooks = (filter, sortBy, order = 'asc', page = 1, limit = 10) => {
-    let allBooks = bookRepository.findAll(); // Get all books from repo
+const getAllBooks = async (filter, sortBy, order = 'asc', page = 1, limit = 10) => {
+    let allBooks = await bookRepository.findAll(); // Get all books from repo
 
     // Filtering (simple case-insensitive search on title and author)
     let filteredBooks = allBooks;
@@ -88,8 +88,8 @@ const getAllBooks = (filter, sortBy, order = 'asc', page = 1, limit = 10) => {
     };
 };
 
-const getFullStatistics = () => {
-    const allBooks = bookRepository.findAll();
+const getFullStatistics = async () => {
+    const allBooks = await bookRepository.findAll();
     
     let mostExpensiveBook = null;
     let leastExpensiveBook = null;
@@ -97,15 +97,16 @@ const getFullStatistics = () => {
     let closestToAverageBook = null;
 
     if (allBooks.length > 0) {
-        // Use reduce for most/least expensive
+        // Most expensive 
         mostExpensiveBook = allBooks.reduce((max, book) =>
             (safeParseFloat(book.price) > safeParseFloat(max.price) ? book : max),
-        allBooks[0] // Initial value for reduce
+        allBooks[0]
         );
 
+        // Least expensive
         leastExpensiveBook = allBooks.reduce((min, book) =>
             (safeParseFloat(book.price) < safeParseFloat(min.price) ? book : min),
-        allBooks[0] // Initial value for reduce
+        allBooks[0]
         );
 
         // Calculate average price
@@ -115,7 +116,7 @@ const getFullStatistics = () => {
         // Find closest to average
         closestToAverageBook = allBooks.reduce((closest, book) =>
              Math.abs(safeParseFloat(book.price) - averagePrice) < Math.abs(safeParseFloat(closest.price) - averagePrice) ? book : closest,
-        allBooks[0] // Initial value for reduce
+        allBooks[0] 
         );
     }
 
@@ -128,54 +129,44 @@ const getFullStatistics = () => {
     };
 };
 
-const getBookById = (id) => {
-    const book = bookRepository.findById(id);
+const getBookById = async (id) => {
+    const book = await bookRepository.findById(id);
     if (!book) {
-        // Use http-errors for standard error objects
         throw createError(404, 'Book not found');
     }
     return book;
 };
 
-const addBook = (bookData) => {
-    // Add any other business validation rules here if needed
-    // (e.g., check if a book with the same title/author already exists)
-    const newBook = bookRepository.create(bookData);
+const addBook = async (bookData) => {
+    const newBook = await bookRepository.create(bookData);
     return newBook;
 };
 
-const updateBook = (id, updateData) => {
-    // Check if book exists first (optional, repo update might handle it)
-    const existingBook = bookRepository.findById(id);
-     if (!existingBook) {
+const updateBook = async (id, updateData) => {
+    const existingBook = await bookRepository.findById(id);
+    if (!existingBook) {
         throw createError(404, 'Book not found');
     }
-    // Add business logic before update if needed
-    const updatedBook = bookRepository.update(id, updateData);
-    // update should ideally return the updated book or confirm success
+    const updatedBook = await bookRepository.update(id, updateData);
     if (!updatedBook) {
-         // This case might be redundant if findById check is done above
-         throw createError(404, 'Book not found during update');
+        throw createError(404, 'Book not found during update');
     }
     return updatedBook;
 };
 
-const deleteBook = (id) => {
-    const deleted = bookRepository.remove(id);
+const deleteBook = async (id) => {
+    const deleted = await bookRepository.remove(id);
     if (!deleted) {
         throw createError(404, 'Book not found');
     }
-    // No return value needed for successful delete typically
 };
 
-const createBook = (bookData) => {
-    // Validate book data if necessary
+const createBook = async (bookData) => {
     if (!bookData.title || !bookData.author) {
         throw createError(400, 'Title and author are required');
     }
 
-    // Use the repository to create a new book
-    const newBook = bookRepository.create(bookData);
+    const newBook = await bookRepository.create(bookData);
     return newBook;
 };
 

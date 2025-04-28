@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect } from 'react';
-import { useBooks } from '../context/book-context';
+import { useBooks } from '../context/BooksContext';
 import { 
     BarChart, Bar, XAxis, YAxis, CartesianGrid, 
     Tooltip, Legend, ResponsiveContainer 
@@ -9,7 +9,6 @@ import styles from '../styles/average-price-per-genre.module.css';
 const AveragePricePerGenreChart = () => {
     const { allBooks, fetchFullStatistics } = useBooks();
     
-    // Fetch statistics on component mount
     useEffect(() => {
         fetchFullStatistics();
     }, [fetchFullStatistics]);
@@ -19,14 +18,11 @@ const AveragePricePerGenreChart = () => {
             return [];
         }
 
-        // Calculate total price and count per genre
         const genrePrices = allBooks.reduce((acc, book) => {
             const genre = book.genre || 'Unknown';
             if (!acc[genre]) {
-                // Initialize if genre not seen before
                 acc[genre] = { total: 0, count: 0 };
             }
-            // Ensure price is a number before adding
             const price = typeof book.price === 'number' ? book.price : 0;
             acc[genre].total += price;
             acc[genre].count += 1;
@@ -40,7 +36,7 @@ const AveragePricePerGenreChart = () => {
                 ? parseFloat((data.total / data.count).toFixed(2)) 
                 : 0
         }));
-    }, [allBooks]); // Re-calculate when allBooks change
+    }, [allBooks]);
 
     if (!chartData || chartData.length === 0) {
         return <div className={styles.noData}>No average price data available</div>;

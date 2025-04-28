@@ -1,40 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { useBooks } from '@/context/book-context';
+import { useBooks } from '@/context/BooksContext';
 import { 
     BarChart, Bar, XAxis, YAxis, CartesianGrid, 
     Tooltip, Legend, ResponsiveContainer 
 } from 'recharts';
-import styles from '../styles/genre-distribution-chart.module.css'; // Adjust path
-
+import styles from '../styles/genre-distribution-chart.module.css'; 
 
 const GenreDistributionChart = () => {
     const { allBooks, fetchFullStatistics } = useBooks();
     const [chartData, setChartData] = useState([]);
     
-    // Fetch statistics on component mount
     useEffect(() => {
         fetchFullStatistics();
     }, [fetchFullStatistics]);
     
-    // Process books into chart data whenever the books array changes
     useEffect(() => {
         if (!allBooks || allBooks.length === 0) return;
         
-        // Count books by genre
         const genreCounts = allBooks.reduce((acc, book) => {
             if (!book.genre) return acc;
             acc[book.genre] = (acc[book.genre] || 0) + 1;
             return acc;
         }, {});
         
-        // Convert to array format for Recharts
         const data = Object.entries(genreCounts).map(([genre, count]) => ({
             genre,
             count
         }));
         
         setChartData(data);
-    }, [allBooks]); // Re-process whenever allBooks change
+    }, [allBooks]); 
     
     if (!chartData || chartData.length === 0) {
         return <div className={styles.noData}>No chart data available</div>;

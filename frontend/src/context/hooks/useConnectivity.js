@@ -4,10 +4,9 @@ import { SERVER_CHECK_INTERVAL } from '../constants';
 
 export const useConnectivity = () => {
     const [isOnline, setIsOnline] = useState(typeof window !== 'undefined' ? navigator.onLine : true);
-    const [isServerReachable, setIsServerReachable] = useState(true); // Assume reachable initially
+    const [isServerReachable, setIsServerReachable] = useState(true); 
 
     const performServerCheck = useCallback(async () => {
-        // No need to check if browser thinks we are offline
         if (!navigator.onLine) {
             setIsServerReachable(false);
             return false;
@@ -22,26 +21,24 @@ export const useConnectivity = () => {
             const online = navigator.onLine;
             setIsOnline(online);
             if (!online) {
-                setIsServerReachable(false); // Can't reach server if offline
+                setIsServerReachable(false); 
             } else {
-                performServerCheck(); // Check server when coming back online
+                performServerCheck(); 
             }
         };
 
         window.addEventListener('online', updateOnlineStatus);
         window.addEventListener('offline', updateOnlineStatus);
 
-        // Initial check
         updateOnlineStatus();
 
-        // Periodic check only when online
         let intervalId;
         if (isOnline) {
             intervalId = setInterval(async () => {
-                 if (navigator.onLine) { // Double check before fetching
+                 if (navigator.onLine) { 
                     await performServerCheck();
                  } else {
-                    setIsServerReachable(false); // Update if browser went offline between checks
+                    setIsServerReachable(false); 
                  }
             }, SERVER_CHECK_INTERVAL);
         }
@@ -52,7 +49,7 @@ export const useConnectivity = () => {
             window.removeEventListener('offline', updateOnlineStatus);
             clearInterval(intervalId);
         };
-    }, [performServerCheck, isOnline]); // Rerun effect if isOnline changes
+    }, [performServerCheck, isOnline]); 
 
     return { isOnline, isServerReachable, checkServerReachability: performServerCheck };
 };

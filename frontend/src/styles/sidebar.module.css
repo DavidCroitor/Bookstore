@@ -21,7 +21,8 @@
     border-radius: 25px;
     display: flex;
     align-items: center;
-    padding: 25px;
+    justify-content: center;
+    padding: 15px;
 }
 
 .menu {
@@ -33,18 +34,13 @@
     list-style: none;
 }
 
-.menu li a {
-    height: 30px;
-    margin: 8px;
-    display: flex;
-    justify-content: center;
-
-}
 
 .menu li:last-child{
     margin-top: auto;
 }
 
-.menu li a .menuItemBox:hover{
+.menu li .menuItemBox:hover{
     background-color: #b9b9b2;
+    cursor: pointer;
 }
+

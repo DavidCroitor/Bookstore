@@ -30,23 +30,47 @@ export const checkServerStatus = async () => {
     }
 };
 
-export const fetchBooksAPI = async ({ page, limit, sortBy, order, filter }) => {
-    const params = new URLSearchParams();
-    if (filter) params.append('filter', filter);
-    if (sortBy) {
-        params.append('sortBy', sortBy);
-        params.append('order', order);
-    }
-    params.append('page', page.toString());
-    params.append('limit', limit.toString());
+export const fetchBooksAPI = async (params = {}) => {
+    const {
+        page = 1,
+        limit = 10,
+        sortBy = 'title',
+        order = 'asc',
+        search,
+        minPrice,
+        maxPrice,
+        author,
+        genre,
+        minRating,
+        yearFrom,
+        yearTo
+    } = params;
 
-    const url = `${API_BASE_URL}/books?${params.toString()}`;
-    try {
-        const response = await fetch(url);
+    const queryParams = new URLSearchParams();
+    queryParams.append('page', page);
+    queryParams.append('limit', limit);
+    queryParams.append('sortBy', sortBy);
+    queryParams.append('order', order);
+    
+    // Add filter parameters if they exist
+    if (search) queryParams.append('search', search);
+    if (minPrice !== undefined) queryParams.append('minPrice', minPrice);
+    if (maxPrice !== undefined) queryParams.append('maxPrice', maxPrice);
+    if (author) queryParams.append('author', author);
+    if (genre) queryParams.append('genre', genre);
+    if (minRating) queryParams.append('minRating', minRating);
+    if (yearFrom) queryParams.append('yearFrom', yearFrom);
+    if (yearTo) queryParams.append('yearTo', yearTo);
+    
+    try{
+        const response = await fetch(`${API_BASE_URL}/books?${queryParams.toString()}`);
         return await handleResponse(response);
-    } catch (error) {
+    }
+    catch (error) {
         handleFetchError(error);
     }
+    
+    
 };
 
 export const addBookAPI = async (bookData) => {
@@ -65,7 +89,20 @@ export const addBookAPI = async (bookData) => {
 
 export const updateBookAPI = async (bookId, bookData) => {
     const { id, ...dataToSend } = bookData;
+
+    if( typeof bookData.author === 'object' && bookData.author !== null) {
+        dataToSend.author =  bookData.author.name || bookData.author;
+    } else {
+        dataToSend.author =  bookData.author;
+    }
+    if( typeof bookData.genre === 'object' && bookData.genre !== null) {
+        dataToSend.genre =  bookData.genre.name || bookData.genre;
+    } else {
+        dataToSend.genre =  bookData.genre;
+    }
+
     try {
+        console.log("Updating book with ID - API:", bookId);
         const response = await fetch(`${API_BASE_URL}/books/${bookId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },

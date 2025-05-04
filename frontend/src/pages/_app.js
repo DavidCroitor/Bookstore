@@ -1,20 +1,20 @@
 import '../styles/globals.css';
-import Sidebar from '../components/sidebar';
 import { BooksProvider } from '../context/BooksContext';
-import ConnectionStatus from '@/components/connection-status';
+import { FilterProvider } from '../context/filter-context';
+import Layout from './layout'; // Make sure this path is correct
+import AdvancedFilterPanel from '../components/advanced-filter-panel';
 
 function MyApp({ Component, pageProps }) {
-    return (
-      <div className="appContainer">
-        <Sidebar />
-        <BooksProvider>
-          <div className="content">
-            <ConnectionStatus/>
-            <Component {...pageProps} />
-          </div>
-        </BooksProvider>
-      </div>
-    );
+  return (
+    <BooksProvider>
+      <FilterProvider>
+        <Layout>
+          <Component {...pageProps} />
+          <AdvancedFilterPanel />
+        </Layout>
+      </FilterProvider>
+    </BooksProvider>
+  );
 }
 
 export default MyApp;

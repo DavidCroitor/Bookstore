@@ -1,0 +1,86 @@
+.filterContainer {
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.filterGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.filterGroup {
+  margin-bottom: 12px;
+}
+
+.filterGroup label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.filterGroup input,
+.filterGroup select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.priceInputs,
+.yearInputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.priceInputs input,
+.yearInputs input {
+  width: calc(50% - 4px);
+}
+
+.priceInputs span,
+.yearInputs span {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.filterActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+  gap: 8px;
+}
+
+.applyButton,
+.resetButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.applyButton {
+  background-color: #4caf50;
+  color: white;
+}
+
+.applyButton:hover {
+  background-color: #43a047;
+}
+
+.resetButton {
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+}
+
+.resetButton:hover {
+  background-color: #e0e0e0;
+}

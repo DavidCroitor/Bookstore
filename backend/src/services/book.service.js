@@ -6,127 +6,87 @@ const safeParseFloat = (value) => {
     return isNaN(num) ? 0 : num; // Default to 0 if not a valid number
 };
 
-const getAllBooks = async (filter, sortBy, order = 'asc', page = 1, limit = 10) => {
-    let allBooks = await bookRepository.findAll(); // Get all books from repo
+const getAllBooks = async (filters = {}, sortBy, order = 'asc', page = 1, limit = 10) => {
+    const {books, total} = await bookRepository.findAll({
+        sortBy,
+        order: order.toUpperCase(),
+        limit,
+        offset: (page - 1) * limit,
+        ...filters
+    });
 
-    // Filtering (simple case-insensitive search on title and author)
-    let filteredBooks = allBooks;
-    if (filter) {
-        const filterLower = filter.toLowerCase();
-        filteredBooks = allBooks.filter(book =>
-            book.title.toLowerCase().includes(filterLower) ||
-            book.author.toLowerCase().includes(filterLower) 
-        );
-    }
+    const totalPages = Math.ceil(total / limit);
 
-    // Sorting
-    let sortedBooks = [...filteredBooks];
-    if (sortBy) {
-        sortedBooks.sort((a, b) => {
-            // Handle potential undefined fields during sort
-            const fieldA = a[sortBy] || '';
-            const fieldB = b[sortBy] || '';
-
-            let comparison = 0;
-            if (fieldA > fieldB) {
-                comparison = 1;
-            } else if (fieldA < fieldB) {
-                comparison = -1;
-            }
-
-            return order === 'desc' ? (comparison * -1) : comparison;
-        });
-    }
-
-    const totalBooks = sortedBooks.length;
-    const totalPages = Math.ceil(totalBooks / limit);
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
-
-    const booksPerPage = sortedBooks.slice(startIndex, endIndex);
-
-    let mostExpensiveBook = null;
-    let leastExpensiveBook = null;
-    let averagePrice = 0;
-    let closestToAverageBook = null;
-
-    if (sortedBooks.length > 0) {
-        // Use reduce for most/least expensive
-        mostExpensiveBook = sortedBooks.reduce((max, book) =>
-            (safeParseFloat(book.price) > safeParseFloat(max.price) ? book : max),
-        sortedBooks[0] // Initial value for reduce
-        );
-
-        leastExpensiveBook = sortedBooks.reduce((min, book) =>
-            (safeParseFloat(book.price) < safeParseFloat(min.price) ? book : min),
-        sortedBooks[0] // Initial value for reduce
-        );
-
-        // Calculate average price
-        const totalPrice = sortedBooks.reduce((sum, book) => sum + safeParseFloat(book.price), 0);
-        averagePrice = totalPrice / sortedBooks.length;
-
-        // Find closest to average
-        closestToAverageBook = sortedBooks.reduce((closest, book) =>
-             Math.abs(safeParseFloat(book.price) - averagePrice) < Math.abs(safeParseFloat(closest.price) - averagePrice) ? book : closest,
-        sortedBooks[0] // Initial value for reduce
-        );
-    }
+    const stats = await calculateBookStatistics(books);
+    
     return {
-        books: booksPerPage,
+        books,
         currentPage: page,
-        totalPages: totalPages,
-        totalBooks: totalBooks,
-        limit: limit,
-        stats: {
-            totalCount: allBooks.length,
-            mostExpensiveBook: mostExpensiveBook,
-            leastExpensiveBook: leastExpensiveBook,
-            averagePrice: averagePrice,
-            closestToAverageBook: closestToAverageBook,
-        },
+        totalPages,
+        totalBooks: total,
+        limit,
+        stats
     };
 };
 
-const getFullStatistics = async () => {
-    const allBooks = await bookRepository.findAll();
-    
+const calculateBookStatistics = async (books) => {
     let mostExpensiveBook = null;
     let leastExpensiveBook = null;
     let averagePrice = 0;
     let closestToAverageBook = null;
 
-    if (allBooks.length > 0) {
-        // Most expensive 
-        mostExpensiveBook = allBooks.reduce((max, book) =>
+    if (books.length > 0) {
+        // Most expensive book
+        mostExpensiveBook = books.reduce((max, book) =>
             (safeParseFloat(book.price) > safeParseFloat(max.price) ? book : max),
-        allBooks[0]
+            books[0]
         );
 
-        // Least expensive
-        leastExpensiveBook = allBooks.reduce((min, book) =>
+        // Least expensive book
+        leastExpensiveBook = books.reduce((min, book) =>
             (safeParseFloat(book.price) < safeParseFloat(min.price) ? book : min),
-        allBooks[0]
+            books[0]
         );
 
         // Calculate average price
-        const totalPrice = allBooks.reduce((sum, book) => sum + safeParseFloat(book.price), 0);
-        averagePrice = totalPrice / allBooks.length;
+        const totalPrice = books.reduce((sum, book) => sum + safeParseFloat(book.price), 0);
+        averagePrice = totalPrice / books.length;
 
         // Find closest to average
-        closestToAverageBook = allBooks.reduce((closest, book) =>
-             Math.abs(safeParseFloat(book.price) - averagePrice) < Math.abs(safeParseFloat(closest.price) - averagePrice) ? book : closest,
-        allBooks[0] 
+        closestToAverageBook = books.reduce((closest, book) =>
+            Math.abs(safeParseFloat(book.price) - averagePrice) < 
+            Math.abs(safeParseFloat(closest.price) - averagePrice) ? book : closest,
+            books[0]
         );
     }
 
     return {
-        totalCount: allBooks.length,
-        mostExpensiveBook: mostExpensiveBook,
-        leastExpensiveBook: leastExpensiveBook,
-        averagePrice: averagePrice,
-        closestToAverageBook: closestToAverageBook,
+        totalCount: books.length,
+        mostExpensiveBook,
+        leastExpensiveBook,
+        averagePrice,
+        closestToAverageBook
     };
+};
+
+
+const getBookStatistics = async () => {
+    try {
+        // Get statistics from repository
+        const statistics = await bookRepository.getBookStatistics();
+        
+        // Format the statistics for the API response
+        return {
+            totalBooks: statistics.count,
+            mostExpensiveBook: statistics.mostExpensive,
+            leastExpensiveBook: statistics.leastExpensive,
+            averagePrice: parseFloat(statistics.averagePrice.toFixed(2)),
+            closestToAverageBook: statistics.closestToAveragePrice
+        };
+    } catch (error) {
+        console.error('Error in book statistics service:', error);
+        throw createError(500, 'Failed to get book statistics');
+    }
 };
 
 const getBookById = async (id) => {
@@ -143,6 +103,9 @@ const addBook = async (bookData) => {
 };
 
 const updateBook = async (id, updateData) => {
+    console.log('Updating book with ID - service:', id);
+
+
     const existingBook = await bookRepository.findById(id);
     if (!existingBook) {
         throw createError(404, 'Book not found');
@@ -177,5 +140,5 @@ module.exports = {
     updateBook,
     deleteBook,
     createBook,
-    getFullStatistics,
+    getBookStatistics,
 };

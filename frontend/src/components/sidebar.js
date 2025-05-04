@@ -8,8 +8,20 @@ import SettignsIcon from '../../assets/settings.png';
 import StatsIcon from '../../assets/stats.png'
 import SignOutIcon from '../../assets/signout.png';
 import Link from 'next/link';
+import { useFilter } from '@/context/filter-context';
+import { useRouter } from 'next/router';
+
 
 const Sidebar = () => {
+    const { toggleFilterPanel, isFilterPanelOpen } = useFilter();
+
+    const router = useRouter();
+    const handleNavigation = (path) => {
+        if (path) {
+            router.push(path);
+        }
+    };
+
     return (
         <div className={styles.sidebar}>
             <header className={styles.header}>
@@ -24,8 +36,10 @@ const Sidebar = () => {
                 alt="Logo"/>
             </header>
             <ul className={styles.menu}>
-                <li><Link href="../">
-                    <div className={styles.menuItemBox}>
+                <li>
+                    <div className={styles.menuItemBox}
+                        onClick={() => handleNavigation('/')}
+                    >
                         <Image
                             src={HomeIcon}
                             width={25}
@@ -33,18 +47,19 @@ const Sidebar = () => {
                             alt="HomeIcon"
                         />
                     </div>
-                </Link></li>
-                <li><a href="#">
-                    <div className={styles.menuItemBox}>
-                        <Image
-                            src={FilterIcon}
-                            width={25}
-                            height={25}
-                            alt="FilterIcon"
-                        />
+                </li>
+                <li>
+                <div className={styles.menuItemBox}
+                    onClick={toggleFilterPanel}>
+                            <Image
+                                src={FilterIcon}
+                                width={25}
+                                height={25}
+                                alt="FilterIcon"
+                            />
                     </div>
-                </a></li>
-                <li><a href="#">
+                </li>
+                <li>
                     <div className={styles.menuItemBox}>
                         <Image
                             src={HeartIcon}
@@ -53,8 +68,8 @@ const Sidebar = () => {
                             alt="HeartIcon"
                         />
                     </div>
-                    </a></li>
-                <li><a href="#">
+                    </li>
+                <li>
                     <div className={styles.menuItemBox}>
                         <Image
                             src={SettignsIcon}
@@ -63,9 +78,11 @@ const Sidebar = () => {
                             alt="SettingsIcon"
                         />
                     </div>    
-                </a></li>
-                <li><Link href="../statistics">
-                    <div className={styles.menuItemBox}>
+                </li>
+                <li>
+                    <div className={styles.menuItemBox}
+                        onClick={() => handleNavigation('/statistics')}
+                    >
                         <Image
                             src={StatsIcon}
                             width={25}
@@ -73,7 +90,7 @@ const Sidebar = () => {
                             alt="StatsIcon"
                         />
                     </div>    
-                </Link></li>
+                </li>
                 <li><a href="#">
                     <div className={styles.menuItemBox}>
                         <Image

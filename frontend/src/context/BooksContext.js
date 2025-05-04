@@ -135,8 +135,6 @@ export const BooksProvider = ({ children }) => {
             setCurrentFilter(filter);
         }
         
-        setError(null);
-        // --- Offline Handling ---
         if (isOfflineMode) {
             console.log('Fetching books in offline mode from cache.');
             const cachedBooks = storage.getItem(LS_BOOKS_CACHE_KEY) || [];
@@ -151,13 +149,31 @@ export const BooksProvider = ({ children }) => {
 
         // --- Online Fetching ---
         try {
-            const data = await bookApi.fetchBooksAPI({
+
+            let apiParams = {
                 page: pageToFetch,
                 limit: ITEMS_PER_PAGE,
                 sortBy,
-                order,
-                filter
-            });
+                order
+            };
+
+            if(typeof filter === 'string' && filter) {
+                if (filter.searchTerm) {
+                    apiParams.search = filter.searchTerm;
+                }
+            }
+            else if (filter && typeof filter === 'object') {
+                if (filter.searchTerm) apiParams.search = filter.searchTerm;
+                if (filter.minPrice) apiParams.minPrice = filter.minPrice;
+                if (filter.maxPrice) apiParams.maxPrice = filter.maxPrice;
+                if (filter.author) apiParams.author = filter.author;
+                if (filter.genre) apiParams.genre = filter.genre;
+                if (filter.minRating) apiParams.minRating = filter.minRating;
+                if (filter.yearFrom) apiParams.yearFrom = filter.yearFrom;
+                if (filter.yearTo) apiParams.yearTo = filter.yearTo;
+            }
+
+            const data = await bookApi.fetchBooksAPI(apiParams);
 
             const serverBooks = data.books || [];
             const isRefreshAfterSync = syncCompletedRef.current;
@@ -329,40 +345,119 @@ export const BooksProvider = ({ children }) => {
         }
     }, [isOnline, isServerReachable, queueAction, books]);
 
-    const debounce = (func, wait) => {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    };
-
     const fetchFullStatisticsInternal = useCallback(async () => {
         if (!isOnline || !isServerReachable) {
-            console.log("Skipping full stats fetch - offline.");
-            return;
+          console.log("Skipping full stats fetch - offline.");
+          // Use cached stats or calculate from cached books when offline
+          const cachedBooks = storage.getItem(LS_BOOKS_CACHE_KEY) || [];
+          if (cachedBooks.length > 0) {
+            const offlineStats = calculateOfflineStats(cachedBooks);
+            setStats(offlineStats);
+          }
+          return;
         }
-        console.log("Fetching full statistics and all books...");
+        
+        console.log("Fetching full statistics...");
         try {
-            const [statsData, allBooksData] = await Promise.all([
-                bookApi.fetchStatsAPI(),
-                bookApi.fetchAllBooksAPI()
-            ]);
-            setStats(statsData);
+          const statsData = await bookApi.fetchStatsAPI();
+          setStats(statsData);
+          
+          // Optional - fetch all books separately if needed
+          try {
+            const allBooksData = await bookApi.fetchAllBooksAPI();
             setAllBooks(allBooksData.books || []);
+          } catch (booksErr) {
+            console.error("Error fetching all books:", booksErr);
+          }
         } catch (err) {
-            console.error("Error fetching full statistics/all books:", err);
+          console.error("Error fetching statistics:", err);
         }
     }, [isOnline, isServerReachable]);
+      
 
-    const fetchFullStatisticsDebounced = useCallback(debounce(fetchFullStatisticsInternal, 1500), [fetchFullStatisticsInternal]);
+    const calculateOfflineStats = (books) => {
+    if (!books || books.length === 0) {
+        return {
+        totalCount: 0,
+        mostExpensiveBook: null,
+        leastExpensiveBook: null,
+        averagePrice: 0,
+        closestToAverageBook: null
+        };
+    }
+    
+    // Find most expensive book
+    const mostExpensiveBook = books.reduce((max, book) => 
+        parseFloat(book.price) > parseFloat(max.price) ? book : max
+    , books[0]);
+    
+    // Find least expensive book
+    const leastExpensiveBook = books.reduce((min, book) => 
+        parseFloat(book.price) < parseFloat(min.price) ? book : min
+    , books[0]);
+    
+    // Calculate average price
+    const totalPrice = books.reduce((sum, book) => 
+        sum + parseFloat(book.price), 0);
+    const averagePrice = totalPrice / books.length;
+    
+    // Find closest to average price
+    const closestToAverageBook = books.reduce((closest, book) => {
+        const closestDiff = Math.abs(parseFloat(closest.price) - averagePrice);
+        const currentDiff = Math.abs(parseFloat(book.price) - averagePrice);
+        return currentDiff < closestDiff ? book : closest;
+    }, books[0]);
+    
+    return {
+        totalCount: books.length,
+        mostExpensiveBook,
+        leastExpensiveBook,
+        averagePrice,
+        closestToAverageBook
+    };
+    };
 
-    const filterBooks = useCallback((searchTerm) => {
-        fetchBooks(1, currentSortBy, currentOrder, searchTerm || null, true);
+    const filterBooks = useCallback((filterOptions) => {
+        console.log('filterBooks received:', filterOptions);
+      
+        // Initialize with defaults
+        let searchTermValue = '';
+        let otherFilters = {};
+        
+        if (filterOptions) {
+          if (typeof filterOptions === 'string') {
+            // Case 1: Simple string searchTerm
+            searchTermValue = filterOptions;
+          } 
+          else if (typeof filterOptions === 'object') {
+            // Case 2: Filter object
+            const { searchTerm, ...rest } = filterOptions;
+            
+            // Handle searchTerm safely - ensure it's a string
+            searchTermValue = typeof searchTerm === 'string' ? searchTerm : '';
+            
+            // All other filters go in otherFilters
+            otherFilters = rest;
+          }
+        }
+        
+        console.log('Processed filters:', { 
+          searchTerm: searchTermValue, 
+          otherFilters 
+        });
+        
+        // Build the final filter object
+        const finalFilter = {
+          ...otherFilters
+        };
+        
+        // Only add searchTerm if it exists
+        if (searchTermValue) {
+          finalFilter.searchTerm = searchTermValue;
+        }
+        
+        // Pass the cleaned filter object to fetchBooks
+        fetchBooks(1, currentSortBy, currentOrder, finalFilter, true);
     }, [fetchBooks, currentSortBy, currentOrder]);
 
     const sortBooks = useCallback((sortBy, order = 'asc') => {
@@ -397,7 +492,7 @@ export const BooksProvider = ({ children }) => {
         deleteBook,
         filterBooks,
         sortBooks,
-        fetchFullStatistics: fetchFullStatisticsDebounced,
+        fetchFullStatistics: fetchFullStatisticsInternal,
     };
 
     return (

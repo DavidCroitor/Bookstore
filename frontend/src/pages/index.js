@@ -8,6 +8,7 @@ import ProfileIcon from '../../assets/profile.png';
 import { useBooks } from '@/context/BooksContext';
 import SortControls from '@/components/sort-controls';
 import PaginationControls from '@/components/pagination-controls';
+import { useFilter } from '../context/filter-context';
 
 export default function Home() {
     // Get data and functions from context for endless scroll
@@ -24,15 +25,20 @@ export default function Home() {
         currentOrder,
         fetchBooks
      } = useBooks();
+    const { searchTerm, setSearchTerm, applyFilters, filters } = useFilter();
+    const [localSearchTerm, setLocalSearchTerm] = useState('');
     const router = useRouter();
-
-    // State for search input
-    const [searchTerm, setSearchTerm] = useState(currentFilter || '');
 
      // Effect to sync search term
      useEffect(() => {
-        setSearchTerm(currentFilter || '');
-    }, [currentFilter]);
+        // Initialize local search term with context value if it's a string
+        if (typeof searchTerm === 'string') {
+            setLocalSearchTerm(searchTerm);
+        } else {
+            // Reset if not a string
+            setLocalSearchTerm('');
+        }
+    }, []);
     
     // Page navigation handlers
     const handlePreviousPage = useCallback(() => {
@@ -57,8 +63,14 @@ export default function Home() {
 
     const handleSearchChange = (e) => {
         const newTerm = e.target.value;
-        setSearchTerm(newTerm);
-        filterBooks(newTerm);
+
+        setLocalSearchTerm(newTerm);
+        setSearchTerm(newTerm); 
+
+        filterBooks({
+            ...filters,
+            searchTerm: newTerm
+        });
     }
 
 
@@ -69,7 +81,7 @@ export default function Home() {
                     className={styles.searchBar}
                     type="search"
                     placeholder="Search by title or author..."
-                    value={searchTerm}
+                    value={localSearchTerm}
                     onChange={handleSearchChange} />
                  <div className={styles.account}>
                     <Image src={BellIcon} width={50} height={50} alt="Notifications"/>

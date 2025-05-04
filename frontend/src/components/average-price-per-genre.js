@@ -15,17 +15,39 @@ const AveragePricePerGenreChart = () => {
 
     const chartData = useMemo(() => {
         if (!allBooks || allBooks.length === 0) {
+            console.log('No books data available for chart');
             return [];
         }
 
         const genrePrices = allBooks.reduce((acc, book) => {
-            const genre = book.genre || 'Unknown';
-            if (!acc[genre]) {
-                acc[genre] = { total: 0, count: 0 };
+            let genreName = 'Unknown';
+            if (book.genre) {
+                if (typeof book.genre === 'object' && book.genre !== null) {
+                    genreName = book.genre.name || 'Unknown';
+                } else if (typeof book.genre === 'string') {
+                    genreName = book.genre;
+                }
             }
-            const price = typeof book.price === 'number' ? book.price : 0;
-            acc[genre].total += price;
-            acc[genre].count += 1;
+
+            if (!acc[genreName]) {
+                acc[genreName] = { total: 0, count: 0 };
+            }
+
+            let price = 0;
+            if (book.price !== undefined && book.price !== null) {
+                price = typeof book.price === 'string' 
+                    ? parseFloat(book.price) 
+                    : typeof book.price === 'number' 
+                        ? book.price 
+                        : 0;
+            }
+
+            // Skip NaN values
+            if (!isNaN(price)) {
+                acc[genreName].total += price;
+                acc[genreName].count += 1;
+            }
+
             return acc;
         }, {});
 
@@ -48,8 +70,7 @@ const AveragePricePerGenreChart = () => {
             <ResponsiveContainer width="100%" height={400}>
                 <BarChart
                     data={chartData}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
-                >
+                    margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis 
                         dataKey="genre" 

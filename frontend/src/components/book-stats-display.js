@@ -22,6 +22,8 @@ const BookStatsDisplay = () => {
         refreshStats();
     }, [books.length, isOnline, isServerReachable, refreshStats]);
 
+
+
     useEffect(() => {
         if (socket) {
             const handleSocketMessage = (event) => {
@@ -39,25 +41,26 @@ const BookStatsDisplay = () => {
         }
     }, [socket, refreshStats]);
 
-    const formatPrice = (book) => {
-        return book && typeof book.price === 'number'
-            ? `$${book.price.toFixed(2)}`
-            : 'N/A';
-    };
+    // More comprehensive condition check
+    const hasValidStats = stats && 
+                         (stats.totalBooks > 0 || 
+                          (stats.mostExpensiveBook || 
+                           stats.leastExpensiveBook || 
+                           stats.averagePrice > 0));
 
     return (
         <div style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '5px', margin: '20px 0' }}>
             <h2>Key Statistics</h2>
-            {stats.totalCount > 0 ? (
+            {hasValidStats ? (
                 <ul>
                     <li><strong>Total Books:</strong> {stats.totalCount}</li>
                     <li><strong>Average Price:</strong> ${stats.averagePrice.toFixed(2)}</li>
                     <li>
-                        <strong>Most Expensive:</strong> {formatPrice(stats.mostExpensiveBook)}
+                        <strong>Most Expensive:</strong> {stats.mostExpensiveBook.price}
                         {stats.mostExpensiveBook ? ` (${stats.mostExpensiveBook.title})` : ''}
                     </li>
                     <li>
-                        <strong>Least Expensive:</strong> {formatPrice(stats.leastExpensiveBook)}
+                        <strong>Least Expensive:</strong> {stats.leastExpensiveBook.price}
                         {stats.leastExpensiveBook ? ` (${stats.leastExpensiveBook.title})` : ''}
                     </li>
                 </ul>

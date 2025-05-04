@@ -18,8 +18,8 @@ const GenreDistributionChart = () => {
         if (!allBooks || allBooks.length === 0) return;
         
         const genreCounts = allBooks.reduce((acc, book) => {
-            if (!book.genre) return acc;
-            acc[book.genre] = (acc[book.genre] || 0) + 1;
+            if (!book.genre.name) return acc;
+            acc[book.genre.name] = (acc[book.genre.name] || 0) + 1;
             return acc;
         }, {});
         

@@ -45,8 +45,8 @@ export default function BookList({ onBookClick }) {
                     return (
                         <div className={cardStyle} key={book._id || book.id} onClick={() => onBookClick(book._id || book.id)}>
                             <h3>{book.title}</h3>
-                            <p>{book.author}</p>
-                            <p>{book.genre}</p>
+                            <p>{book.author?.name}</p>
+                            <p>{book.genre?.name}</p>
                             <p>{book.price}$</p>
                             {book.rating !== undefined && <p>Rating: {book.rating}/5</p>}
                         </div>

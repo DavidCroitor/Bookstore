@@ -19,7 +19,10 @@ const PriceDistributionChart = () => {
         }
 
         // 1. Get valid prices
-        const prices = allBooks.map(book => book.price).filter(price => typeof price === 'number');
+        const prices = allBooks
+            .map(book => typeof book.price === 'string' ? parseFloat(book.price) : book.price)
+            .filter(price => !isNaN(price) && price > 0);
+
         if (prices.length === 0) {
              return [];
         }

@@ -83,7 +83,7 @@ export default function BookEditForm({ book, onEditBook, onCancel, onDelete, sub
                 />
                 <input
                     name="author"
-                    value={form.author}
+                    value={form.author.name}
                     onChange={handleChange}
                     placeholder="Author"
                     className={styles.input}
@@ -91,7 +91,7 @@ export default function BookEditForm({ book, onEditBook, onCancel, onDelete, sub
                 />
                 <input
                     name="genre"
-                    value={form.genre}
+                    value={form.genre.name}
                     onChange={handleChange}
                     placeholder="Genre"
                     className={styles.input}
@@ -102,14 +102,6 @@ export default function BookEditForm({ book, onEditBook, onCancel, onDelete, sub
                     value={form.price}
                     onChange={handleChange}
                     placeholder="Price"
-                    className={styles.input}
-                    required
-                />
-                <input
-                    name="rating"
-                    value={form.rating}
-                    onChange={handleChange}
-                    placeholder="Rating"
                     className={styles.input}
                     required
                 />

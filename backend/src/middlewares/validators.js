@@ -37,9 +37,21 @@ const bookUpdateValidationRules = [
 
 
 const bookQueryValidationRules = [
-     query('filter').optional().isString().escape(), 
-     query('sortBy').optional().isIn(['title', 'author', 'price', 'genre', 'id', 'rating']).withMessage('Invalid sortBy field'), // Added genre/id
-     query('order').optional().isIn(['asc', 'desc']).withMessage('Invalid order value')
+    query('search').optional().isString().escape(),
+    query('filter').optional().isString().escape(), // Keep for backward compatibility
+    query('sortBy').optional().isIn(['title', 'author', 'price', 'genre', 'id', 'rating', 'publicationYear']).withMessage('Invalid sortBy field'),
+    query('order').optional().isIn(['asc', 'desc']).withMessage('Invalid order value'),
+    query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer'),
+    query('limit').optional().isInt({ min: 1 }).withMessage('Limit must be a positive integer'),
+    
+    // Advanced filter parameters
+    query('minPrice').optional().isFloat({ min: 0 }).withMessage('Minimum price must be a non-negative number'),
+    query('maxPrice').optional().isFloat({ min: 0 }).withMessage('Maximum price must be a non-negative number'),
+    query('author').optional().isString().escape(),
+    query('genre').optional().isString().escape(),
+    query('minRating').optional().isFloat({ min: 0, max: 5 }).withMessage('Minimum rating must be between 0 and 5'),
+    query('yearFrom').optional().isInt({ min: 1000, max: 9999 }).withMessage('Year must be a valid 4-digit year'),
+    query('yearTo').optional().isInt({ min: 1000, max: 9999 }).withMessage('Year must be a valid 4-digit year')
 ];
 
 // Middleware to handle validation results

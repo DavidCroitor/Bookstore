@@ -99,14 +99,6 @@ export default function BookForm({ onAddBook, sumbitButtonLabel }) {
                 className={styles.input}
                 required
             />
-            <input
-                name="rating"
-                value={form.rating}
-                onChange={handleChange}
-                placeholder="rating"
-                className={styles.input}
-                required
-            />
             
             </div>
             
